@@ -15,8 +15,12 @@ logging.info('Connected to Pulsar')
 logging.info('Receiving Messages ...')
 
 while True:
-    msg = consumer.receive()
-    logging.info("Received message '%s' id='%s'", msg.data(), msg.message_id())
-    consumer.acknowledge(msg)
+	try:
+		msg = consumer.receive(timeout_millis=5000)
+		logging.info("Received message '%s' id='%s'", msg.data(), msg.message_id())
+		consumer.acknowledge(msg)
+	except Exception:
+		logging.info("Time out ...")
+    	break
 
 client.close()
