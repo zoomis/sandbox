@@ -9,9 +9,9 @@ tags:
 
 # Introduction
 
-This is the repo for the sandbox for streamlio platform components , it's a docker image that's running heron , pulsar , bookkeeper and a simple topology consuming messages which are a stream of sentences on a pulsar queue which get split into words and the aggregated in time window interval to a count map and then published to an output pulsar queue.
+This is the repo for the sandbox for streamlio platform, it's a docker image that's running heron, pulsar, bookkeeper and a simple topology consuming messages which are a stream of sentences on a pulsar queue which get split into words and the aggregated in time window interval to a count map and then published to an output pulsar queue.
 
-The docker image installs pulsar , heron and bookkeeper components and then packages and deploys the simple topology that is part of this repo.
+The docker image installs pulsar, heron and bookkeeper components and then packages and deploys the simple topology that is part of this repo.
 
 
 # Requirements
