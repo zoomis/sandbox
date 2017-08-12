@@ -77,5 +77,21 @@ ENV SERVICE_URL http://localhost:8080/
 ### end pulsar dashboard
 
 COPY streamlio.conf /etc/supervisor/conf.d/
+COPY apply-config-from-env.py /pulsar/bin
+
+# Settings for lower memory consumption
+ENV PULSAR_MEM '" -Xmx512M -XX:MaxDirectMemorySize=512M"'
+ENV PULSAR_GC '" -XX:+UseG1GC"'
+ENV managedLedgerCacheSizeMB 16
+
+ENV BOOKIE_MEM '" -Xmx512M -XX:MaxDirectMemorySize=512M"'
+ENV BOOKIE_GC '" -XX:+UseG1GC"'
+ENV dbStorage_writeCacheMaxSizeMb 8
+ENV dbStorage_readAheadCacheMaxSizeMb 0
+ENV dbStorage_readAheadCacheBatchSize 0
+ENV dbStorage_rocksDB_blockCacheSize=16777216
+ENV dbStorage_rocksDB_writeBufferSizeMB=4
+ENV statsProviderClass org.apache.bookkeeper.stats.PrometheusMetricsProvider
+ENV prometheusStatsHttpPort 8001
 
 ENTRYPOINT ["supervisord", "-n"]
