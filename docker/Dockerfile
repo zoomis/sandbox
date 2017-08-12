@@ -17,18 +17,15 @@
 # under the License.
 #
 
-FROM openjdk:8-jdk
+FROM openjdk:8-jre
 
 # Install some utilities
 RUN apt-get update && \
     apt-get install -y netcat \
-                    dnsutils \
-                    wget \
-                    build-essential \
-                    python python-dev python-pip python-virtualenv \
+                    python \
                     supervisor \
-                    postgresql python sudo nginx \
-    && rm -rf /var/lib/apt/lists/*
+                    postgresql sudo \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /components
 
@@ -55,19 +52,13 @@ COPY heron-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar /components
 
 WORKDIR /scripts
 
-COPY streamlio.conf /etc/supervisor/conf.d/
-
-
 ### Pulsar dashboard dependencies
-RUN pip install uwsgi Django psycopg2 pytz requests
+RUN wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py && rm get-pip.py
+RUN pip install Django psycopg2 pytz requests
 COPY pulsar-dashboard/postgresql.conf /etc/postgresql/9.6/main/
 
-# Configure nginx and supervisor
-RUN echo "daemon off;" >> /etc/nginx/nginx.conf
-COPY pulsar-dashboard/nginx-app.conf /etc/nginx/sites-available/default
+# Configure supervisor
 COPY pulsar-dashboard/pulsar-dashboard.conf /etc/supervisor/conf.d/
-COPY pulsar-dashboard/uwsgi_params /pulsar/conf/
-COPY pulsar-dashboard/uwsgi.ini /pulsar/conf/
 COPY pulsar-dashboard/django /pulsar/django
 
 # Setup database and create tables
@@ -84,5 +75,7 @@ RUN sudo -u postgres /etc/init.d/postgresql start && \
 RUN cd /pulsar/django && ./manage.py collectstatic --no-input
 ENV SERVICE_URL http://localhost:8080/
 ### end pulsar dashboard
+
+COPY streamlio.conf /etc/supervisor/conf.d/
 
 ENTRYPOINT ["supervisord", "-n"]
