@@ -46,18 +46,22 @@ RUN wget https://github.com/twitter/heron/releases/download/0.15.0/heron-tools-i
 RUN chmod +x heron-tools-install-0.15.0-ubuntu.sh
 RUN ./heron-tools-install-0.15.0-ubuntu.sh
 
-RUN git clone 
+RUN git clone https://github.com/streamlio/sandbox.git
+WORKDIR /components/sandbox
+RUN mvn clean:clean
+RUN mvn package
 
+WORKDIR /scripts
 
 RUN touch sandbox-starter.sh
-RUN echo "heron-tracker --rootpath ~/.herondata/repository/state/onenode > /var/log/heron-tracker.log 2>&1 &" >> sandbox-starter.sh
+RUN echo "#!/bin/bash" >> sandbox-starter.sh
+RUN echo "/components/pulsar/bin/pulsar standalone > /var/log/pulsar.log 2>&1" >> sandbox-starter.sh
+RUN echo "heron-tracker --rootpath ~/.herondata/repository/state/sandbox > /var/log/heron-tracker.log 2>&1 &" >> sandbox-starter.sh
 RUN echo "heron-ui > /var/log/heron-ui.log 2>&1 &" >> sandbox-starter.sh
-RUN echo "heron-apiserver --base-template=local --cluster=onenode -Dheron.directory.home=/usr/local/heron > /var/log/heron-apiserver.log 2>&1" >> sandbox-starter.sh
+RUN echo "heron-apiserver --base-template=local --cluster=sandbox -Dheron.directory.home=/usr/local/heron > /var/log/heron-apiserver.log 2>&1" >> sandbox-starter.sh
+RUN echo "sleep 15" >> sandbox-starter.sh
+RUN echo "heron submit local --service-url http://localhost:9000 /components/sandbox/target/heron-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar tutorial.WordCountTopology WordCountTopology Cluster" >> sandbox-starter.sh
 RUN echo "sleep infinity" >> sandbox-starter.sh
-RUN echo "/components/pulsar/bin/pulsar standalone" >> sandbox-starter.sh
+RUN chmod +x sandbox-starter.sh
 
-# WORKDIR /pulsar
-
-# VOLUME  ["/pulsar/conf", "/pulsar/data"]
-
-# ENV PULSAR_ROOT_LOGGER=INFO,CONSOLE
+ENTRYPOINT ["/scripts/sandbox-starter.sh"]
