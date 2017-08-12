@@ -55,12 +55,12 @@ WORKDIR /scripts
 
 RUN touch sandbox-starter.sh
 RUN echo "#!/bin/bash" >> sandbox-starter.sh
-RUN echo "/components/pulsar/bin/pulsar standalone > /var/log/pulsar.log 2>&1" >> sandbox-starter.sh
+RUN echo "/components/pulsar/bin/pulsar standalone > /var/log/pulsar.log 2>&1 &" >> sandbox-starter.sh
 RUN echo "heron-tracker --rootpath ~/.herondata/repository/state/sandbox > /var/log/heron-tracker.log 2>&1 &" >> sandbox-starter.sh
 RUN echo "heron-ui > /var/log/heron-ui.log 2>&1 &" >> sandbox-starter.sh
-RUN echo "heron-apiserver --base-template=local --cluster=sandbox -Dheron.directory.home=/usr/local/heron > /var/log/heron-apiserver.log 2>&1" >> sandbox-starter.sh
-RUN echo "sleep 15" >> sandbox-starter.sh
-RUN echo "heron submit local --service-url http://localhost:9000 /components/sandbox/target/heron-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar tutorial.WordCountTopology WordCountTopology Cluster" >> sandbox-starter.sh
+RUN echo "heron-apiserver --base-template=local --cluster=sandbox -Dheron.directory.home=/usr/local/heron > /var/log/heron-apiserver.log 2>&1 &" >> sandbox-starter.sh
+RUN echo "sleep 5" >> sandbox-starter.sh
+RUN echo "heron submit sandbox --service-url http://localhost:9000 /components/sandbox/target/heron-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar tutorial.WordCountTopology WordCountTopology Cluster" >> sandbox-starter.sh
 RUN echo "sleep infinity" >> sandbox-starter.sh
 RUN chmod +x sandbox-starter.sh
 
