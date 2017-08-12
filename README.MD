@@ -18,13 +18,19 @@ The docker image installs pulsar , heron and bookkeeper components and then pack
 
 ### Docker
 
-We require a docker engine running on a platform to build and deploy the container image. You can install it for your spcific platform form the links below.
+We require a docker engine running on a platform to build and deploy the container image. You can install it for your specific platform form the links below.
 
 __OSX:__ [Download Link](https://docs.docker.com/docker-for-mac/install/)
 
 __Windows:__ [Download Link](https://docs.docker.com/docker-for-windows/install/)
 
 __Ubuntu:__ [Download Link](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
+
+### Maven
+
+Maven is required to build the heron topology. Please follow instruction here if not present on system.
+
+[Maven Installation](https://maven.apache.org/install.html)
 
 ### Pulsar Client
 
@@ -35,12 +41,17 @@ It can be installed using the python package manager as below.
 pip install pulsar-client
 ```
 
-
 # Running the Sandbox Image
 
 ### Clone the repo
 ```bash
 git clone https://github.com/streamlio/sandbox.git
+```
+
+### Build and copy the Heron Topology
+```bash
+mvn package
+cp target/heron-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar ./docker/
 ```
 
 ### Build the Docker Image
@@ -56,7 +67,7 @@ docker run -id --name streamlio-sandbox \
 docker ps
 ```
 
-## Understanding the image
+## Understanding the docker image
 
 # Examining Running Topology
 
