@@ -17,6 +17,5 @@ while True:
         logging.info("Received message '%s' id='%s'", msg.data(), msg.message_id())
         consumer.acknowledge(msg)
     except Exception:
-        logging.info("No message received")
-
-client.close()
+        logging.info("No message received, Closing connection")
+        client.close()
