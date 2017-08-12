@@ -8,7 +8,7 @@ logging.basicConfig(format='%(asctime)s %(levelname)s : %(message)s', level=logg
 logging.info('Connecting to Pulsar...')
 
 client = pulsar.Client('pulsar://localhost:6650')
-consumer = client.subscribe('persistent://sample/standalone/ns/my-topic', 'my-sub')
+consumer = client.subscribe('persistent://sample/standalone/ns1/wordcount', 'my-sub')
 
 logging.info('Connected to Pulsar')
 

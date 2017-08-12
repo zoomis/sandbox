@@ -15,7 +15,7 @@ logging.basicConfig(format='%(asctime)s %(levelname)s : %(message)s', level=logg
 logging.info('Connecting to Pulsar...')
 
 client = pulsar.Client('pulsar://localhost:6650')
-producer = client.create_producer('persistent://sample/standalone/ns/my-topic')
+producer = client.create_producer('persistent://sample/standalone/ns1/sentences')
 
 logging.info('Connected to Pulsar')
 
