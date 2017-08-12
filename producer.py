@@ -3,12 +3,14 @@ import random
 from time import sleep
 import logging
 
+
 def random_cycle(ls):
-        local_ls = ls[:] # copy
-        while True:
-            random.shuffle(local_ls)
-            for e in local_ls:
-                yield e
+    local_ls = ls[:]  # copy
+    while True:
+        random.shuffle(local_ls)
+        for e in local_ls:
+            yield e
+
 
 logging.basicConfig(format='%(asctime)s %(levelname)s : %(message)s', level=logging.DEBUG)
 
@@ -30,8 +32,8 @@ sentences = random_cycle([
 logging.info('Sending Messages ...')
 
 for sentence in sentences:
-	sleep(0.05)
-	logging.info('Sending message - %s ', sentence)
-	producer.send(sentence)
+    sleep(0.05)
+    logging.info('Sending message - %s ', sentence)
+    producer.send(sentence)
 
 client.close()
