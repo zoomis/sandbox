@@ -56,4 +56,33 @@ WORKDIR /scripts
 RUN apt-get install -y supervisor
 COPY streamlio.conf /etc/supervisor/conf.d/
 
+
+### Pulsar dashboard dependencies
+RUN apt-get -y install postgresql python sudo nginx
+RUN pip install uwsgi Django psycopg2 pytz requests
+COPY pulsar-dashboard/postgresql.conf /etc/postgresql/9.6/main/
+
+# Configure nginx and supervisor
+RUN echo "daemon off;" >> /etc/nginx/nginx.conf
+COPY pulsar-dashboard/nginx-app.conf /etc/nginx/sites-available/default
+COPY pulsar-dashboard/pulsar-dashboard.conf /etc/supervisor/conf.d/
+COPY pulsar-dashboard/uwsgi_params /pulsar/conf/
+COPY pulsar-dashboard/uwsgi.ini /pulsar/conf/
+COPY pulsar-dashboard/django /pulsar/django
+
+# Setup database and create tables
+RUN sudo -u postgres /etc/init.d/postgresql start && \
+    sudo -u postgres psql --command "CREATE USER docker WITH PASSWORD 'docker';" && \
+    sudo -u postgres createdb -O docker pulsar_dashboard && \
+    cd /pulsar/django && \
+    ./manage.py migrate && \
+    sudo -u postgres /etc/init.d/postgresql stop
+
+# Collect all static files needed by Django in a
+# single place. Needed to run the app outside the
+# Django test web server
+RUN cd /pulsar/django && ./manage.py collectstatic --no-input
+ENV SERVICE_URL http://localhost:8080/
+### end pulsar dashboard
+
 ENTRYPOINT ["supervisord", "-n"]
