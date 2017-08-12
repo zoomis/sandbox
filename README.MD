@@ -1,6 +1,6 @@
 ---
-title: Streaml sandbox
-description: Interact with a single node streaml platform.
+title: Streamlio sandbox
+description: Interact with a single node streamlio platform.
 tags:
 - heron
 - pulsar
@@ -9,18 +9,27 @@ tags:
 
 # Introduction
 
-This is the repo for the sandbox for streamlio platform componenets , it's a docker image that's running heron and pulsar and a simple topology consuming messages which are a stream of sentences on a pulsar queue split into words and the aggregated in time window interval to a count map and then published to an ouput pulsar queeue.
+This is the repo for the sandbox for streamlio platform components , it's a docker image that's running heron , pulsar , bookkeeper and a simple topology consuming messages which are a stream of sentences on a pulsar queue which get split into words and the aggregated in time window interval to a count map and then published to an output pulsar queue.
 
-The docker image installs puslsar and heron components and then packages and deploys the simple topology that is part of this repo
+The docker image installs pulsar , heron and bookkeeper components and then packages and deploys the simple topology that is part of this repo.
 
 
 # Requirements
 
 ### Docker
 
-__OSX:__ [Download Link](https://docs.docker.com/docker-for-mac/install/#download-docker-for-mac)
+We require a docker engine running on a platform to build and deploy the container image. You can install it for your spcific platform form the links below.
+
+__OSX:__ [Download Link](https://docs.docker.com/docker-for-mac/install/)
+
+__Windows:__ [Download Link](https://docs.docker.com/docker-for-windows/install/)
+
+__Ubuntu:__ [Download Link](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
 
 ### Pulsar Client
+
+We require the pulsar python client for running the producer and consumer scripts.
+It can be installed using the python package manager as below.
 
 ```bash
 pip install pulsar-client
@@ -47,19 +56,21 @@ docker run -id --name streamlio-sandbox \
 docker ps
 ```
 
-# Examining Running Toplogy
+## Understanding the image
+
+# Examining Running Topology
 
 Go to host http://localhost:8889/
 
 # Sending Input Events
 
-Once the docker image is up and running we can start the producer from to host to send messages to the puslsar instance in the docker container.
+Once the docker image is up and running we can start the producer from to host to send messages to the pulsar instance in the docker container.
 
 ```bash
 python producer.py
 ```
 
-Sample Console ouput
+Sample Console output
 
 ```bash
 2017-08-12 12:45:17,528 INFO : Connected to Pulsar
@@ -88,7 +99,7 @@ We can now start consuming the output stream with the consumer script
 python consumer.py
 ```
 
-Sample Console ouput
+Sample Console output
 
 ```bash
 2017-08-12 12:45:33,076 INFO : Created consumer
@@ -111,5 +122,6 @@ Sample Console ouput
 ```bash
 docker kill streamlio-sandbox
 ```
+
 
 
