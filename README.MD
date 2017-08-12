@@ -71,7 +71,7 @@ docker ps
 
 # Examining Running Topology
 
-Go to host [http://localhost:8889/]
+Go to Heron Tracker UI [http://localhost:8889/](http://localhost:8889/)
 
 # Sending Input Events
 
@@ -129,7 +129,7 @@ Sample Console output
 ```
 # Examine pulsar
 
-Go to Pulsar-Ui [http://localhost:8000/stats/namespace/sample/standalone/ns1/]
+Go to Pulsar-Dashboard [http://localhost:8000/stats/namespace/sample/standalone/ns1/](http://localhost:8000/stats/namespace/sample/standalone/ns1/)
 
 # Shutdown container
 
