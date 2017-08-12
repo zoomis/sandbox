@@ -17,7 +17,7 @@ logging.info('Created consumer')
 while True:
     try:
         msg = consumer.receive(timeout_millis=5000) # try and receive messages with a timeout
-        logging.info("Received message '%s' id='%s'", msg.data(), msg.message_id())
+        logging.info("Received message '%s'", msg.data())
         consumer.acknowledge(msg) # send ack to pulsar for message delivery
     except Exception:
     	# close client if no messages can be read within the timeout iteval

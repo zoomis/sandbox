@@ -63,7 +63,7 @@ docker images
 ### Run a container based on the image
 ```bash
 docker run -id --name streamlio-sandbox \
--p 8000:9000 -p 7889:8889 -p 6650:6650 -p 7080:8080 streamlio-sandbox:latest
+-p 9000:9000 -p 8889:8889 -p 6650:6650 -p 8080:8080 streamlio-sandbox:latest
 docker ps
 ```
 
@@ -71,7 +71,7 @@ docker ps
 
 # Examining Running Topology
 
-Go to host http://localhost:8889/
+Go to host [http://localhost:8889/]
 
 # Sending Input Events
 
@@ -127,12 +127,12 @@ Sample Console output
 2017-08-12 12:45:35,244 INFO : Received message '{ "word" : "white" , "count" : 9 }' id='(2,10,-1)'
 2017-08-12 12:45:35,244 INFO : Received message '{ "word" : "four" , "count" : 11 }' id='(2,11,-1)'
 ```
+# Examine pulsar
+
+Go to Pulsar-Ui [http://localhost:8000/stats/namespace/sample/standalone/ns1/]
 
 # Shutdown container
 
 ```bash
 docker kill streamlio-sandbox
 ```
-
-
-
