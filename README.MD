@@ -165,7 +165,7 @@ Sample Console output
 
 Go to Pulsar-Dashboard [http://localhost:8000/stats/namespace/sample/standalone/ns1/](http://localhost:8000/stats/namespace/sample/standalone/ns1/)
 
-__Note__ : The ui updates once every minutes
+__Note__ : The pulsar admin ui updates once every minute
 
 Here we can see the input and output topics in pulsar
 
