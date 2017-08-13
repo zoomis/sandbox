@@ -62,8 +62,8 @@ docker images
 
 ### Run a container based on the image
 ```bash
-docker run -id --name streamlio-sandbox \
--p 9000:9000 -p 8889:8889 -p 6650:6650 -p 8080:8080 streamlio-sandbox:latest
+docker run -d --name streamlio-sandbox \
+-p 9000:9000 -p 8889:8889 -p 6650:6650 -p 8080:8080 -p 8000:8000 streamlio-sandbox:latest
 docker ps
 ```
 
@@ -73,9 +73,12 @@ docker ps
 
 Go to Heron Tracker UI [http://localhost:8889/](http://localhost:8889/)
 
+We can see the topology running inside the docker container and its various stages
+![Topology Examination](images/WordCountPulsarTopology.png)
+
 # Sending Input Events
 
-Once the docker image is up and running we can start the producer from to host to send messages to the pulsar instance in the docker container.
+Once the docker image is up and running we can start the [`producer`](producer.py) from to host to send messages to the pulsar instance in the docker container.
 
 ```bash
 python producer.py
@@ -103,7 +106,7 @@ Sample Console output
 
 # Consuming Output Events
 
-We can now start consuming the output stream with the consumer script
+We can now start consuming the output stream with the [`consumer`](consumer.py) script
 
 
 ```bash
@@ -113,26 +116,40 @@ python consumer.py
 Sample Console output
 
 ```bash
-2017-08-12 12:45:33,076 INFO : Created consumer
-2017-08-12 12:45:35,219 INFO : Received message '{ "word" : "away" , "count" : 9 }' id='(2,0,-1)'
-2017-08-12 12:45:35,232 INFO : Received message '{ "word" : "ago" , "count" : 11 }' id='(2,1,-1)'
-2017-08-12 12:45:35,232 INFO : Received message '{ "word" : "jumped" , "count" : 9 }' id='(2,2,-1)'
-2017-08-12 12:45:35,232 INFO : Received message '{ "word" : "seven" , "count" : 20 }' id='(2,3,-1)'
-2017-08-12 12:45:35,232 INFO : Received message '{ "word" : "cow" , "count" : 9 }' id='(2,4,-1)'
-2017-08-12 12:45:35,232 INFO : Received message '{ "word" : "two" , "count" : 11 }' id='(2,5,-1)'
-2017-08-12 12:45:35,232 INFO : Received message '{ "word" : "years" , "count" : 11 }' id='(2,6,-1)'
-2017-08-12 12:45:35,233 INFO : Received message '{ "word" : "dwarfs" , "count" : 9 }' id='(2,7,-1)'
-2017-08-12 12:45:35,233 INFO : Received message '{ "word" : "apple" , "count" : 9 }' id='(2,8,-1)'
-2017-08-12 12:45:35,233 INFO : Received message '{ "word" : "score" , "count" : 11 }' id='(2,9,-1)'
-2017-08-12 12:45:35,244 INFO : Received message '{ "word" : "white" , "count" : 9 }' id='(2,10,-1)'
-2017-08-12 12:45:35,244 INFO : Received message '{ "word" : "four" , "count" : 11 }' id='(2,11,-1)'
+2017-08-12 16:59:12,742 INFO : Created consumer
+2017-08-12 16:59:12,771 INFO : Received message '{ "word" : "away" , "count" : 12 }'
+2017-08-12 16:59:12,771 INFO : Received message '{ "word" : "ago" , "count" : 13 }'
+2017-08-12 16:59:12,772 INFO : Received message '{ "word" : "jumped" , "count" : 16 }'
+2017-08-12 16:59:12,772 INFO : Received message '{ "word" : "seven" , "count" : 26 }'
+2017-08-12 16:59:12,791 INFO : Received message '{ "word" : "cow" , "count" : 16 }'
+2017-08-12 16:59:12,791 INFO : Received message '{ "word" : "two" , "count" : 10 }'
+2017-08-12 16:59:12,791 INFO : Received message '{ "word" : "years" , "count" : 13 }'
+2017-08-12 16:59:12,791 INFO : Received message '{ "word" : "dwarfs" , "count" : 13 }'
+2017-08-12 16:59:12,791 INFO : Received message '{ "word" : "score" , "count" : 13 }'
+2017-08-12 16:59:12,792 INFO : Received message '{ "word" : "apple" , "count" : 12 }'
+2017-08-12 16:59:12,792 INFO : Received message '{ "word" : "white" , "count" : 13 }'
 ```
 # Examine pulsar
 
 Go to Pulsar-Dashboard [http://localhost:8000/stats/namespace/sample/standalone/ns1/](http://localhost:8000/stats/namespace/sample/standalone/ns1/)
 
-# Shutdown container
+__Note__ : The ui updates once every minutes
+
+Here we can see the input and output topics in pulsar
+
+![Topology Examination](images/BrokerTopics.png)
+
+We can drill down to the stats of the input topic queue
+
+![Topology Examination](images/SentenceTopicInput.png)
+
+We can also examine the details of the output topic queue
+
+![Topology Examination](images/WordCountTopicOutput.png)
+
+# Shutdown and remove container
 
 ```bash
 docker kill streamlio-sandbox
+docker rm streamlio-sandbox
 ```
