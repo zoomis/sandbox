@@ -91,10 +91,10 @@ public class WordCountTopology {
         conf.setNumWorkers(4);
 
         // Resource Configs
-        com.twitter.heron.api.Config.setComponentRam(conf, "sentence", ByteAmount.fromMegabytes(64));
-        com.twitter.heron.api.Config.setComponentRam(conf, "split", ByteAmount.fromGigabytes(64));
-        com.twitter.heron.api.Config.setComponentRam(conf, "count", ByteAmount.fromGigabytes(64));
-        com.twitter.heron.api.Config.setComponentRam(conf, "pulsar", ByteAmount.fromGigabytes(64));
+        com.twitter.heron.api.Config.setComponentRam(conf, "sentence", ByteAmount.fromMegabytes(256));
+        com.twitter.heron.api.Config.setComponentRam(conf, "split", ByteAmount.fromMegabytes(256));
+        com.twitter.heron.api.Config.setComponentRam(conf, "count", ByteAmount.fromMegabytes(256));
+        com.twitter.heron.api.Config.setComponentRam(conf, "pulsar", ByteAmount.fromMegabytes(256));
         com.twitter.heron.api.Config.setContainerCpuRequested(conf, 0.5f);
 
         //submit the topology
