@@ -13,6 +13,10 @@ This is the repo for the sandbox for streamlio platform, it's a docker image tha
 
 The docker image installs pulsar, heron and bookkeeper components and then packages and deploys the simple topology that is part of this repo.
 
+Below is the diagram of the topology
+
+![Topology Explanation](images/TopologyExplain.png)
+
 
 # Requirements
 
@@ -67,18 +71,27 @@ docker run -d --name streamlio-sandbox \
 docker ps
 ```
 
-## Understanding the docker image
+### Ports Explanation
+
+| Component        | Host Port     | Docker Container Port |
+| ---------------- | ------------- | --------------------- |
+| Heron Api Server | 9000          | 9000                  |
+| Heron UI         | 8889          | 8889                  |
+| Pulsar Broker    | 6650          | 6650                  |
+| Pulsar Admin     | 8080          | 8080                  |
+| Pulsar UI        | 8000          | 8000                  |
 
 # Examining Running Topology
 
 Go to Heron Tracker UI [http://localhost:8889/](http://localhost:8889/)
 
 We can see the topology running inside the docker container and its various stages
+
 ![Topology Examination](images/WordCountPulsarTopology.png)
 
 # Sending Input Events
 
-Once the docker image is up and running we can start the [`producer`](producer.py) from to host to send messages to the pulsar instance in the docker container.
+Once the docker image is up and running we can start the [`producer`](producer.py) from the host to send messages to the pulsar instance in the docker container.
 
 ```bash
 python producer.py
