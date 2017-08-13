@@ -45,6 +45,25 @@ It can be installed using the python package manager as below.
 pip install pulsar-client
 ```
 
+# Running the Sandbox Image from DockerHub
+
+### Run a container based on the image in docker hub
+```bash
+docker run -d --name streamlio-sandbox \
+-p 9000:9000 -p 8889:8889 -p 6650:6650 -p 8080:8080 -p 8000:8000 streamlio/sandbox
+docker ps
+```
+
+### Get and run the producer and consumer scripts
+
+```bash
+wget https://raw.githubusercontent.com/streamlio/sandbox/master/producer.py && python producer.py
+```
+
+```bash
+wget https://raw.githubusercontent.com/streamlio/sandbox/master/consumer.py && python consumer.py
+```
+
 # Running the Sandbox Image from source files
 
 ### Clone the repo
@@ -69,25 +88,6 @@ docker images
 docker run -d --name streamlio-sandbox \
 -p 9000:9000 -p 8889:8889 -p 6650:6650 -p 8080:8080 -p 8000:8000 streamlio-sandbox:latest
 docker ps
-```
-
-# Running the Sandbox Image from dockerhub
-
-### Run a container based on the image in docker hub
-```bash
-docker run -d --name streamlio-sandbox \
--p 9000:9000 -p 8889:8889 -p 6650:6650 -p 8080:8080 -p 8000:8000 streamlio/sandbox
-docker ps
-```
-
-### Get and run the producer and consumer scripts
-
-```bash
-wget https://raw.githubusercontent.com/streamlio/sandbox/master/consumer.py && python consumer.py
-```
-
-```bash
-wget https://raw.githubusercontent.com/streamlio/sandbox/master/producer.py && python producer.py
 ```
 
 ### Ports Explanation
