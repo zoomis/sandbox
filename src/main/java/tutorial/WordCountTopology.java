@@ -82,17 +82,20 @@ public class WordCountTopology {
                 .build();
 
         builder.setSpout("sentence", randomSentenceSpout,1);
-        builder.setBolt("split", new SplitSentenceBolt(),1).shuffleGrouping("sentence");
-        builder.setBolt("count", new WordCountBolt(),1).fieldsGrouping("split", new Fields("word"));
-        builder.setBolt("pulsar", messageBolt,1).shuffleGrouping("count");
+        builder.setBolt("split", new SplitSentenceBolt(),2).shuffleGrouping("sentence");
+        builder.setBolt("count", new WordCountBolt(),2).fieldsGrouping("split", new Fields("word"));
+        builder.setBolt("pulsar", messageBolt,1).globalGrouping("count");
 
         Config conf = new Config();
 
+        conf.setNumWorkers(4);
+
         // Resource Configs
-        com.twitter.heron.api.Config.setComponentRam(conf, "sentence", ByteAmount.fromGigabytes(1));
-        com.twitter.heron.api.Config.setComponentRam(conf, "split", ByteAmount.fromGigabytes(1));
-        com.twitter.heron.api.Config.setComponentRam(conf, "count", ByteAmount.fromGigabytes(1));
-        com.twitter.heron.api.Config.setContainerCpuRequested(conf, 3);
+        com.twitter.heron.api.Config.setComponentRam(conf, "sentence", ByteAmount.fromMegabytes(64));
+        com.twitter.heron.api.Config.setComponentRam(conf, "split", ByteAmount.fromGigabytes(64));
+        com.twitter.heron.api.Config.setComponentRam(conf, "count", ByteAmount.fromGigabytes(64));
+        com.twitter.heron.api.Config.setComponentRam(conf, "pulsar", ByteAmount.fromGigabytes(64));
+        com.twitter.heron.api.Config.setContainerCpuRequested(conf, 0.5f);
 
         //submit the topology
         HelperRunner.runTopology(args, builder.createTopology(), conf);
