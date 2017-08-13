@@ -36,8 +36,8 @@ sentences = random_cycle([
 logging.info('Sending Messages ...')
 
 for sentence in sentences:
-    sleep(0.05) # throttle messages with 50 ms delay
+    sleep(0.05)  # throttle messages with 50 ms delay
     logging.info('Sending message - %s ', sentence)
-    producer.send(sentence) # publish to pulsar
+    producer.send(sentence)  # publish to pulsar
 
 client.close()
