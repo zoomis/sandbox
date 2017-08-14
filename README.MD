@@ -145,7 +145,7 @@ We can also take a look at the `wordcount` topic, which contains word count resu
 
 ![Word count topic drilldown](images/WordCountTopicOutput.png)
 
-# Shut down and remove the image
+## Shut down and remove the image
 
 Once you're finished experimenting with the Streamlio sandbox, you can kill the running container:
 
