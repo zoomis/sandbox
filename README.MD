@@ -207,7 +207,7 @@ Check that the image is running using `docker ps`.
 
 ## Run the sandbox on Kubernetes
 
-You can run the Streamlio sandbox on a running Kubernetes cluster using just a few [`kubectl`](wget https://raw.githubusercontent.com/streamlio/sandbox/master/producer.py) commands. First, fetch the [YAML](http://www.yaml.io/) configuration:
+You can run the Streamlio sandbox on a running Kubernetes cluster using just a few [`kubectl`](https://kubernetes.io/docs/user-guide/kubectl-overview/) commands. First, fetch the [YAML](http://www.yaml.io/) configuration:
 
 ```bash
 $ wget https://raw.githubusercontent.com/streamlio/sandbox/master/kubernetes/streamlio-sandbox.yaml
