@@ -13,11 +13,11 @@ Below is a diagram of the sandbox:
 
 The `producer.py` and `consumer.py` scripts are processes that you'll run outside the Docker container; the gray section in the middle shows everything inside the container.
 
-You could run the sandbox using one of the following 
+You can run the sandbox using one of the following approaches:
   
-[Run the sandbox image using Docker](#run-the-sandbox-image-using-docker)
-[Run the sandbox image on Kubernetes cluster](#run-the-sandbox-on-kubernetes)
-[Run the sandbox image from source files](#run-the-sandbox-image-from-source-files)
+* Run the sandbox image using [Docker](#run-the-sandbox-image-using-docker)
+* Run the sandbox image on [Kubernetes cluster](#run-the-sandbox-on-kubernetes)
+* Run the sandbox image from [source files](#run-the-sandbox-image-from-source-files)
 
 ## Run the sandbox image using Docker
 
