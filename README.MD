@@ -13,9 +13,17 @@ Below is a diagram of the sandbox:
 
 The `producer.py` and `consumer.py` scripts are processes that you'll run outside the Docker container; the gray section in the middle shows everything inside the container.
 
-## Requirements
+You could run the sandbox using one of the following 
+  
+  [Running the sandbox image using Docker] (#run-the-sandbox-image-using-docker)
+  [Running the sandbox image in Kubernetes cluster] (#run-the-sandbox-on-kubernetes)
+  [Running the sandbox image using Kubernetes] (#run-the-sandbox-image-from-source-files)
 
-### Docker
+## Run the sandbox image using Docker
+
+### Requirements
+
+#### Docker
 
 In order to run the Streamlio sandbox, you'll need to have a Docker engine running locally. You can find installation instructions for your platform below:
 
@@ -27,7 +35,7 @@ In order to run the Streamlio sandbox, you'll need to have a Docker engine runni
 
 > You can also run the sandbox image on a [Kubernetes](https://kubernetes.io) cluster using the instructions [below](#run-the-sandbox-on-kubernetes).
 
-### Pulsar Client
+#### Pulsar Client
 
 The `consumer.py` and `producer.py` Python scripts require the `pulsar-client` library to run. You can install it using [pip](https://pip.pypa.io/en/stable/installing/):
 
@@ -35,7 +43,7 @@ The `consumer.py` and `producer.py` Python scripts require the `pulsar-client` l
 pip install pulsar-client
 ```
 
-## Run the sandbox image using Docker
+### Running the sandbox image
 
 The Docker image for the Streamlio sandbox is available via [Docker Hub](https://hub.docker.com/r/streamlio/sandbox/). You can run it using this command:
 
