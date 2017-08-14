@@ -1,0 +1,26 @@
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: streamlio-sandbox
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: streamlio-sandbox
+    spec:
+      containers:
+      - name: streamlio-sandbox
+        image: streamlio/sandbox:latest
+        ports:
+        - containerPort: 9000
+          name: heron-api
+        - containerPort: 8889
+          name: heron-ui
+        - containerPort: 6650
+          name: pulsar-broker
+        - containerPort: 8080
+          name: pulsar-admin
+        - containerPort: 8000
+          name: pulsar-ui
