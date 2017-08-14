@@ -193,6 +193,8 @@ Once the `STATUS` changes to `RUNNING`, you can connect to the running pod using
 $ kubectl port-forward <pod name> 9000:9000 8889:8889 6650:6650 8080:8080 8000:8000
 ```
 
+After the port forwarding is complete, please follow the instructions to run the producer and consumer scripts [above](#run-the-producer-and-consumer-scripts)
+
 ## Run the sandbox image from source files
 
 If you prefer to build the Docker image from source rather than pulling from Docker Hub, follow the instructions below.
