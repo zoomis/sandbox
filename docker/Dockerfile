@@ -87,7 +87,7 @@ ENV managedLedgerCacheSizeMB 16
 ENV BOOKIE_MEM '" -Xmx512M -XX:MaxDirectMemorySize=512M"'
 ENV BOOKIE_GC '" -XX:+UseG1GC"'
 ENV dbStorage_writeCacheMaxSizeMb 8
-ENV dbStorage_readAheadCacheMaxSizeMb 0
+ENV dbStorage_readAheadCacheMaxSizeMb 8
 ENV dbStorage_readAheadCacheBatchSize 0
 ENV dbStorage_rocksDB_blockCacheSize=16777216
 ENV dbStorage_rocksDB_writeBufferSizeMB=4
