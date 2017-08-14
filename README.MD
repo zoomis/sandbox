@@ -15,9 +15,9 @@ The `producer.py` and `consumer.py` scripts are processes that you'll run outsid
 
 You could run the sandbox using one of the following 
   
-[Run the sandbox image using Docker] (#run-the-sandbox-image-using-docker)
-[Run the sandbox image on Kubernetes cluster] (#run-the-sandbox-on-kubernetes)
-[Run the sandbox image from source files] (#run-the-sandbox-image-from-source-files)
+[Run the sandbox image using Docker](#run-the-sandbox-image-using-docker)
+[Run the sandbox image on Kubernetes cluster](#run-the-sandbox-on-kubernetes)
+[Run the sandbox image from source files](#run-the-sandbox-image-from-source-files)
 
 ## Run the sandbox image using Docker
 
