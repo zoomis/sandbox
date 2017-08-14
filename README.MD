@@ -35,7 +35,7 @@ The `consumer.py` and `producer.py` Python scripts require the `pulsar-client` l
 pip install pulsar-client
 ```
 
-## Run the sandbox image
+## Run the sandbox image using Docker
 
 The Docker image for the Streamlio sandbox is available via [Docker Hub](https://hub.docker.com/r/streamlio/sandbox/). You can run it using this command:
 
