@@ -15,6 +15,8 @@ The `producer.py` and `consumer.py` scripts are processes that you'll run outsid
 
 ## Requirements
 
+You have two options for running the Streamlio sandbox. You can run it using [Docker](#docker) or on a [Kubernetes](#kubernetes) cluster.
+
 ### Docker
 
 In order to run the Streamlio sandbox, you'll need to have a Docker engine running locally. You can find installation instructions for your platform below:
@@ -25,7 +27,9 @@ In order to run the Streamlio sandbox, you'll need to have a Docker engine runni
 
 **Ubuntu**: [Download Link](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
 
-> You can also run the sandbox image on a [Kubernetes](https://kubernetes.io) cluster using the instructions [below](#run-the-sandbox-on-kubernetes).
+### Kubernetes
+
+
 
 ### Pulsar Client
 
@@ -57,6 +61,32 @@ You can check to make sure the image is running using `docker ps`, which should 
 ```
 CONTAINER ID        IMAGE               ...                                                                                              
 c90100be5ea8        streamlio/sandbox   ...
+```
+
+## Run the sandbox on Kubernetes
+
+You can run the Streamlio sandbox on a running Kubernetes cluster using just a few [`kubectl`](https://kubernetes.io/docs/user-guide/kubectl-overview/) commands. First, fetch the [YAML](http://www.yaml.io/) configuration:
+
+```bash
+$ wget https://raw.githubusercontent.com/streamlio/sandbox/master/kubernetes/streamlio-sandbox.yaml
+```
+
+Then apply the configuration to your cluster:
+
+```bash
+$ kubectl apply -f streamlio-sandbox.yaml
+```
+
+The `streamlio/sandbox` Docker image is fairly large, so it may take a minute or more to pull the image and start it up. You can check on the progress of the installation at any time:
+
+```bash
+$ kubectl get pods -l app=streamlio-sandbox
+```
+
+Once the `STATUS` changes to `RUNNING`, you can connect to the running pod using `kubectl`'s [`port-forward`](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/) command. First, get the name of the running pod by running the `kubectl get` command from above. Then open up the ports to that pod:
+
+```bash
+$ kubectl port-forward <pod name> 9000:9000 8889:8889 6650:6650 8080:8080 8000:8000
 ```
 
 ### Ports Explanation
@@ -204,29 +234,3 @@ $ docker run -d \
 ```
 
 Check that the image is running using `docker ps`.
-
-## Run the sandbox on Kubernetes
-
-You can run the Streamlio sandbox on a running Kubernetes cluster using just a few [`kubectl`](https://kubernetes.io/docs/user-guide/kubectl-overview/) commands. First, fetch the [YAML](http://www.yaml.io/) configuration:
-
-```bash
-$ wget https://raw.githubusercontent.com/streamlio/sandbox/master/kubernetes/streamlio-sandbox.yaml
-```
-
-Then apply the configuration to your cluster:
-
-```bash
-$ kubectl apply -f streamlio-sandbox.yaml
-```
-
-The `streamlio/sandbox` Docker image is fairly large, so it may take a minute or more to pull the image and start it up. You can check on the progress of the installation at any time:
-
-```bash
-$ kubectl get pods -l app=streamlio-sandbox
-```
-
-Once the `STATUS` changes to `RUNNING`, you can connect to the running pod using `kubectl`'s [`port-forward`](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/) command. First, get the name of the running pod by running the `kubectl get` command from above. Then open up the ports to that pod:
-
-```bash
-$ kubectl port-forward <pod name> 9000:9000 8889:8889 6650:6650 8080:8080 8000:8000
-```
