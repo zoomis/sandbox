@@ -68,19 +68,45 @@
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
-          <archive>
-            <manifest>
-              <mainClass></mainClass>
-            </manifest>
-          </archive>
         </configuration>
         <executions>
           <execution>
-            <id>make-assembly</id>
+            <id>word-count-topology</id>
             <phase>package</phase>
             <goals>
               <goal>single</goal>
             </goals>
+            <configuration>
+              <appendAssemblyId>false</appendAssemblyId>
+              <archive>
+                <manifest>
+                  <mainClass>tutorial.WordCountTopology</mainClass>
+                </manifest>
+              </archive>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+              <finalName>${project.artifactId}-${project.version}-word-count</finalName>
+            </configuration>
+          </execution>
+          <execution>
+            <id>fraud-detection-topology</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <appendAssemblyId>false</appendAssemblyId>
+              <archive>
+                <manifest>
+                  <mainClass>tutorial.FraudDetectionTopology</mainClass>
+                </manifest>
+              </archive>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+              <finalName>${project.artifactId}-${project.version}-fraud-detection</finalName>
+            </configuration>
           </execution>
         </executions>
       </plugin>
