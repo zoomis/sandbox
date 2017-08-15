@@ -16,10 +16,11 @@ logging.info('Created consumer')
 
 while True:
     try:
-        msg = consumer.receive(timeout_millis=5000) # try and receive messages with a timeout
+        # try and receive messages with a timeout of 10 seconds
+        msg = consumer.receive(timeout_millis=10000)
         logging.info("Received message '%s'", msg.data())
-        consumer.acknowledge(msg) # send ack to pulsar for message delivery
+        consumer.acknowledge(msg)  # send ack to pulsar for message consumption
     except Exception:
-    	# close client if no messages can be read within the timeout iteval
-        logging.info("No message received, Closing connection")
-        client.close() 
+        logging.info("No message received in the last 10 seconds")
+
+client.close()

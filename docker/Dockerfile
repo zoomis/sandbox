@@ -47,9 +47,6 @@ RUN wget https://github.com/twitter/heron/releases/download/0.15.0/heron-tools-i
     ./heron-tools-install-0.15.0-ubuntu.sh && \
     rm ./heron-tools-install-0.15.0-ubuntu.sh
 
-
-COPY heron-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar /components
-
 WORKDIR /scripts
 
 ### Pulsar dashboard dependencies
@@ -79,6 +76,9 @@ ENV SERVICE_URL http://localhost:8080/
 COPY streamlio.conf /etc/supervisor/conf.d/
 COPY apply-config-from-env.py /pulsar/bin
 
+# Copy Tolopology Jar
+COPY heron-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar /components
+
 # Settings for lower memory consumption
 ENV PULSAR_MEM '" -Xmx512M -XX:MaxDirectMemorySize=512M"'
 ENV PULSAR_GC '" -XX:+UseG1GC"'
@@ -87,7 +87,7 @@ ENV managedLedgerCacheSizeMB 16
 ENV BOOKIE_MEM '" -Xmx512M -XX:MaxDirectMemorySize=512M"'
 ENV BOOKIE_GC '" -XX:+UseG1GC"'
 ENV dbStorage_writeCacheMaxSizeMb 8
-ENV dbStorage_readAheadCacheMaxSizeMb 0
+ENV dbStorage_readAheadCacheMaxSizeMb 8
 ENV dbStorage_readAheadCacheBatchSize 0
 ENV dbStorage_rocksDB_blockCacheSize=16777216
 ENV dbStorage_rocksDB_writeBufferSizeMB=4

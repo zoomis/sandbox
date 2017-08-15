@@ -1,168 +1,236 @@
----
-title: Streamlio sandbox
-description: Interact with a single node streamlio platform.
-tags:
-- heron
-- pulsar
-- onebox
----
+# The Streamlio sandbox
 
-# Introduction
+This repo houses all of the assets for the [Streamlio sandbox](https://streaml.io/docs/getting-started), a version of the Streamlio real-time messaging, compute, and stream storage platform tailored to local experimentation and development. The Streamlio sandbox combines three platforms---[Apache Pulsar](https://pulsar.incubator.apache.org) (incubating), [Heron](https://twitter.github.io/heron), and [Apache BookKeeper](https://bookkeeper.apache.org)---into a single Docker image, along with an example word count [Heron topology](https://twitter.github.io/heron/docs/concepts/topologies/). That topology does the following:
 
-This is the repo for the sandbox for streamlio platform, it's a docker image that's running heron, pulsar, bookkeeper and a simple topology consuming messages which are a stream of sentences on a pulsar queue which get split into words and the aggregated in time window interval to a count map and then published to an output pulsar queue.
+* consumes randomly chosen sentences published to a [Pulsar topic](http://pulsar.incubator.apache.org/docs/latest/getting-started/ConceptsAndArchitecture/#producers-consumers-topics-and-subscriptions) by a Pulsar [producer](producer.py)
+* splits incoming sentences into individual words
+* counts each word into an aggregated time interval
+* periodically publishes those counts to a Pulsar topic that is then read by a [Pulsar consumer](consumer.py).
 
-The docker image installs pulsar, heron and bookkeeper components and then packages and deploys the simple topology that is part of this repo.
+Below is a diagram of the sandbox:
 
-Below is the diagram of the topology
+![Streamlio sandbox diagram](images/SandboxDiagram.png)
 
-![Topology Explanation](images/TopologyExplain.png)
+The `producer.py` and `consumer.py` scripts are processes that you'll run outside the Docker container; the gray section in the middle shows everything inside the container.
 
+## Requirements
 
-# Requirements
+You have two options for running the Streamlio sandbox. You can run it using [Docker](#docker) or on a [Kubernetes](#kubernetes) cluster.
 
 ### Docker
 
-We require a docker engine running on a platform to build and deploy the container image. You can install it for your specific platform form the links below.
+In order to run the Streamlio sandbox, you'll need to have a Docker engine running locally. You can find installation instructions for your platform below:
 
-__OSX:__ [Download Link](https://docs.docker.com/docker-for-mac/install/)
+**MacOS**: [Download Link](https://docs.docker.com/docker-for-mac/install/)
 
-__Windows:__ [Download Link](https://docs.docker.com/docker-for-windows/install/)
+**Windows**: [Download Link](https://docs.docker.com/docker-for-windows/install/)
 
-__Ubuntu:__ [Download Link](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
+**Ubuntu**: [Download Link](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
 
-### Maven
+### Kubernetes
 
-Maven is required to build the heron topology. Please follow instruction here if not present on system.
 
-[Maven Installation](https://maven.apache.org/install.html)
 
 ### Pulsar Client
 
-We require the pulsar python client for running the producer and consumer scripts.
-It can be installed using the python package manager as below.
+The `consumer.py` and `producer.py` Python scripts require the `pulsar-client` library to run. You can install it using [pip](https://pip.pypa.io/en/stable/installing/):
 
 ```bash
 pip install pulsar-client
 ```
 
-# Running the Sandbox Image
+## Run the sandbox image using Docker
 
-### Clone the repo
+The Docker image for the Streamlio sandbox is available via [Docker Hub](https://hub.docker.com/r/streamlio/sandbox/). You can run it using this command:
+
 ```bash
-git clone https://github.com/streamlio/sandbox.git
+$ docker run -d \
+  --name streamlio-sandbox \
+  -p 9000:9000 \
+  -p 8889:8889 \
+  -p 6650:6650 \
+  -p 8080:8080 \
+  -p 8000:8000 \
+  streamlio/sandbox
 ```
 
-### Build and copy the Heron Topology
-```bash
-mvn package
-cp target/heron-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar ./docker/
+> If you'd prefer to build the Docker image from source rather than pulling from Docker Hub, see the [instructions below](#run-the-sandbox-image-from-source-files).
+
+You can check to make sure the image is running using `docker ps`, which should output something like this:
+
+```
+CONTAINER ID        IMAGE               ...                                                                                              
+c90100be5ea8        streamlio/sandbox   ...
 ```
 
-### Build the Docker Image
+## Run the sandbox on Kubernetes
+
+You can run the Streamlio sandbox on a running Kubernetes cluster using just a few [`kubectl`](https://kubernetes.io/docs/user-guide/kubectl-overview/) commands. First, fetch the [YAML](http://www.yaml.io/) configuration:
+
 ```bash
-docker build docker/ -t streamlio-sandbox:latest
-docker images
+$ wget https://raw.githubusercontent.com/streamlio/sandbox/master/kubernetes/streamlio-sandbox.yaml
 ```
 
-### Run a container based on the image
+Then apply the configuration to your cluster:
+
 ```bash
-docker run -d --name streamlio-sandbox \
--p 9000:9000 -p 8889:8889 -p 6650:6650 -p 8080:8080 -p 8000:8000 streamlio-sandbox:latest
-docker ps
+$ kubectl apply -f streamlio-sandbox.yaml
+```
+
+The `streamlio/sandbox` Docker image is fairly large, so it may take a minute or more to pull the image and start it up. You can check on the progress of the installation at any time:
+
+```bash
+$ kubectl get pods -l app=streamlio-sandbox
+```
+
+Once the `STATUS` changes to `RUNNING`, you can connect to the running pod using `kubectl`'s [`port-forward`](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/) command. First, get the name of the running pod by running the `kubectl get` command from above. Then open up the ports to that pod:
+
+```bash
+$ kubectl port-forward <pod name> 9000:9000 8889:8889 6650:6650 8080:8080 8000:8000
 ```
 
 ### Ports Explanation
 
+As you can see, the image requires several open ports. The table below examples what each port is used for.
+
 | Component        | Host Port     | Docker Container Port |
 | ---------------- | ------------- | --------------------- |
-| Heron Api Server | 9000          | 9000                  |
+| Heron API Server | 9000          | 9000                  |
 | Heron UI         | 8889          | 8889                  |
 | Pulsar Broker    | 6650          | 6650                  |
 | Pulsar Admin     | 8080          | 8080                  |
 | Pulsar UI        | 8000          | 8000                  |
 
-# Examining Running Topology
+## Run the producer and consumer scripts
 
-Go to Heron Tracker UI [http://localhost:8889/](http://localhost:8889/)
+There are two Python scripts in the sandbox that act as a Pulsar producer and consumer, respectively. You can fetch them like this:
 
-We can see the topology running inside the docker container and its various stages
+```bash
+$ wget https://raw.githubusercontent.com/streamlio/sandbox/master/producer.py
+$ wget https://raw.githubusercontent.com/streamlio/sandbox/master/consumer.py
+```
+
+If the Docker image is currently running, start up the consumer (just make sure to wait a few seconds after you've started up the Docker image):
+
+```bash
+$ python consumer.py
+```
+
+> If you get an error along the lines of `Exception: Pulsar error: ConnectError`, try waiting a few seconds and retrying. If that doesn't work, run `docker ps` to check on the status of the running image.
+
+Initially, no messages will be published to the topic that the consumer is listening on. This will change when you start up the producer:
+
+```bash
+$ python producer.py
+```
+
+Once you start up the producer, you should begin to see messages like this via the consumer:
+
+```
+2017-08-13 16:23:44,561 INFO : Received message '{ "word" : "am" , "count" : 11 }'
+2017-08-13 16:23:44,561 INFO : Received message '{ "word" : "an" , "count" : 11 }'
+2017-08-13 16:23:44,563 INFO : Received message '{ "word" : "the" , "count" : 42 }'
+2017-08-13 16:23:44,565 INFO : Received message '{ "word" : "doctor" , "count" : 11 }'
+2017-08-13 16:23:44,565 INFO : Received message '{ "word" : "with" , "count" : 11 }'
+2017-08-13 16:23:44,577 INFO : Received message '{ "word" : "moon" , "count" : 10 }'
+2017-08-13 16:23:44,578 INFO : Received message '{ "word" : "at" , "count" : 11 }'
+2017-08-13 16:23:44,578 INFO : Received message '{ "word" : "snow" , "count" : 11 }'
+```
+
+The producer, in turn, should be producing output like this:
+
+```
+2017-08-13 16:23:39,156 INFO : Sending message - four score and seven years ago
+2017-08-13 16:23:39,217 INFO : Sending message - i am at two with nature
+2017-08-13 16:23:39,277 INFO : Sending message - i am at two with nature
+2017-08-13 16:23:39,338 INFO : Sending message - four score and seven years ago
+2017-08-13 16:23:39,398 INFO : Sending message - an apple a day keeps the doctor away
+2017-08-13 16:23:39,461 INFO : Sending message - the cow jumped over the moon
+2017-08-13 16:23:39,524 INFO : Sending message - snow white and the seven dwarfs
+```
+
+If your output looks something like that, then the sandbox is working! That means that you now have an end-to-end, real-time, stateful processing platform powered by Apache Pulsar (incubating), Heron, and Apache BookKeeper running on your laptop.
+
+## Examine the running topology
+
+The [Heron UI](https://twitter.github.io/heron/docs/operators/heron-ui/) is a browser dashboard that you can use to examine numerous aspects of running topologies. While the Docker image is running, you can access the UI at http://localhost:8889. The Heron UI page for the word count topology should look like this:
 
 ![Topology Examination](images/WordCountPulsarTopology.png)
 
-# Sending Input Events
+## Examine Pulsar topics
 
-Once the docker image is up and running we can start the [`producer`](producer.py) from the host to send messages to the pulsar instance in the docker container.
+You can get insight into Pulsar topics using the [Pulsar Dashboard](http://pulsar.incubator.apache.org/docs/latest/admin/Dashboard/). The sandbox uses two topics: `sentences` and `wordcount`. You can get info on those topics by navigating to http://localhost:8000/stats/namespace/sample/standalone/ns1 in your browser.
 
-```bash
-python producer.py
-```
+> The Pulsar Dashboard updates once every minute.
 
-Sample Console output
+You can see the input and output topics in Pulsar:
 
-```bash
-2017-08-12 12:45:17,528 INFO : Connected to Pulsar
-2017-08-12 12:45:17,528 INFO : Sending Messages ...
-2017-08-12 12:45:17,583 INFO : Sending message - four score and seven years ago 
-2017-08-12 12:45:17,764 INFO : Sending message - the cow jumped over the moon 
-2017-08-12 12:45:17,821 INFO : Sending message - i am at two with nature 
-2017-08-12 12:45:17,882 INFO : Sending message - an apple a day keeps the doctor away 
-2017-08-12 12:45:17,945 INFO : Sending message - snow white and the seven dwarfs 
-2017-08-12 12:45:18,004 INFO : Sending message - i am at two with nature 
-2017-08-12 12:45:18,063 INFO : Sending message - an apple a day keeps the doctor away 
-2017-08-12 12:45:18,127 INFO : Sending message - snow white and the seven dwarfs 
-2017-08-12 12:45:18,187 INFO : Sending message - the cow jumped over the moon 
-2017-08-12 12:45:18,246 INFO : Sending message - four score and seven years ago 
-2017-08-12 12:45:18,303 INFO : Sending message - snow white and the seven dwarfs 
-2017-08-12 12:45:18,366 INFO : Sending message - an apple a day keeps the doctor away 
-2017-08-12 12:45:18,427 INFO : Sending message - the cow jumped over the moon
-```
+![Pulsar topics](images/BrokerTopics.png)
 
-# Consuming Output Events
+You can also drill down into the stats of the input topic queue (named `sentences`):
 
-We can now start consuming the output stream with the [`consumer`](consumer.py) script
+![Sentences topic drilldown](images/SentenceTopicInput.png)
 
+We can also take a look at the `wordcount` topic, which contains word count results:
+
+![Word count topic drilldown](images/WordCountTopicOutput.png)
+
+## Shut down and remove the image
+
+Once you're finished experimenting with the Streamlio sandbox, you can kill the running container:
 
 ```bash
-python consumer.py
+$ docker kill streamlio-sandbox
 ```
 
-Sample Console output
+You can also remove the container at any time:
 
 ```bash
-2017-08-12 16:59:12,742 INFO : Created consumer
-2017-08-12 16:59:12,771 INFO : Received message '{ "word" : "away" , "count" : 12 }'
-2017-08-12 16:59:12,771 INFO : Received message '{ "word" : "ago" , "count" : 13 }'
-2017-08-12 16:59:12,772 INFO : Received message '{ "word" : "jumped" , "count" : 16 }'
-2017-08-12 16:59:12,772 INFO : Received message '{ "word" : "seven" , "count" : 26 }'
-2017-08-12 16:59:12,791 INFO : Received message '{ "word" : "cow" , "count" : 16 }'
-2017-08-12 16:59:12,791 INFO : Received message '{ "word" : "two" , "count" : 10 }'
-2017-08-12 16:59:12,791 INFO : Received message '{ "word" : "years" , "count" : 13 }'
-2017-08-12 16:59:12,791 INFO : Received message '{ "word" : "dwarfs" , "count" : 13 }'
-2017-08-12 16:59:12,791 INFO : Received message '{ "word" : "score" , "count" : 13 }'
-2017-08-12 16:59:12,792 INFO : Received message '{ "word" : "apple" , "count" : 12 }'
-2017-08-12 16:59:12,792 INFO : Received message '{ "word" : "white" , "count" : 13 }'
+$ docker rm streamlio-sandbox
 ```
-# Examine pulsar
 
-Go to Pulsar-Dashboard [http://localhost:8000/stats/namespace/sample/standalone/ns1/](http://localhost:8000/stats/namespace/sample/standalone/ns1/)
+## Run the sandbox image from source files
 
-__Note__ : The ui updates once every minutes
+If you prefer to build the Docker image from source rather than pulling from Docker Hub, follow the instructions below.
 
-Here we can see the input and output topics in pulsar
+### Maven
 
-![Topology Examination](images/BrokerTopics.png)
+Maven is required to build the Heron topology from source (the topology is written in Java). Please follow the instructions [here](https://maven.apache.org/install.html) if not present on your system.
 
-We can drill down to the stats of the input topic queue
-
-![Topology Examination](images/SentenceTopicInput.png)
-
-We can also examine the details of the output topic queue
-
-![Topology Examination](images/WordCountTopicOutput.png)
-
-# Shutdown and remove container
+### Clone the repo
 
 ```bash
-docker kill streamlio-sandbox
-docker rm streamlio-sandbox
+$ git clone https://github.com/streamlio/sandbox.git
+$ cd sandbox
 ```
+
+### Build and copy the Heron Topology
+
+```bash
+$ mvn package
+$ cp target/heron-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar ./docker/
+```
+
+### Build the Docker Image
+
+```bash
+$ docker build docker/ -t streamlio-sandbox:latest
+
+# Check to make sure that the image has been installed
+$ docker images
+```
+
+### Run a container based on the image
+
+```bash
+$ docker run -d \
+  --name streamlio-sandbox \
+  -p 9000:9000 \
+  -p 8889:8889 \
+  -p 6650:6650 \
+  -p 8080:8080 \
+  -p 8000:8000 \
+  streamlio-sandbox:latest
+```
+
+Check that the image is running using `docker ps`.
