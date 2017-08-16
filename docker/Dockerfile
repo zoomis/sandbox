@@ -76,7 +76,7 @@ ENV SERVICE_URL http://localhost:8080/
 COPY streamlio.conf /etc/supervisor/conf.d/
 COPY apply-config-from-env.py /pulsar/bin
 
-# Copy Tolopology Jar
+# Copy topology jars
 COPY heron-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar /components
 
 # Settings for lower memory consumption

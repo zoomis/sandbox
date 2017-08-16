@@ -23,7 +23,7 @@ public class FraudDetectionTopology {
     private static String SERVICE_URL = "pulsar://localhost:6650";
     private static String INPUT_TOPIC = "persistent://sample/standalone/ns1/credit-card-numbers";
     private static String OUTPUT_TOPIC = "persistent://sample/standalone/ns1/fraud";
-    private static String SUBSCRIPTION = "subscriber-1";
+    private static String SUBSCRIPTION = "cc-number-subscription";
 
     public FraudDetectionTopology() {}
 
@@ -33,26 +33,23 @@ public class FraudDetectionTopology {
         TupleToMessageMapper fraudulentNumberMapper = new TupleToMessageMapper() {
             @Override
             public Message toMessage(Tuple tuple) {
-                long ccNumber = tuple.getLong(0);
-                String msgStr = String.format(
-                        "{\"fraudulent\":%d}", ccNumber
-                );
+                String msg = String.format("Fraudulent number: %s", tuple.getString(0));
+
                 return MessageBuilder.create().setContent(
-                        msgStr.getBytes())
+                        msg.getBytes())
                         .build();
             }
 
             @Override
             public void declareOutputFields(OutputFieldsDeclarer declarer) {
-                declarer.declare(new Fields("fraudulent"));
+                declarer.declare(new Fields("fraud"));
             }
         };
 
         MessageToValuesMapper creditCardNumberMapper = new MessageToValuesMapper() {
             @Override
             public Values toValues(Message msg) {
-                long num = Long.parseLong(new String(msg.getData()));
-                return new Values(num);
+                return new Values(new String(msg.getData()));
             }
 
             @Override
@@ -64,7 +61,7 @@ public class FraudDetectionTopology {
         PulsarSpout ccNumberSpout = new PulsarSpout.Builder()
                 .setServiceUrl(SERVICE_URL)
                 .setTopic(INPUT_TOPIC)
-                .setServiceUrl(SUBSCRIPTION)
+                .setSubscription(SUBSCRIPTION)
                 .setMessageToValuesMapper(creditCardNumberMapper)
                 .build();
 
@@ -75,13 +72,17 @@ public class FraudDetectionTopology {
                 .build();
 
         builder.setSpout("numbers", ccNumberSpout, 1);
-        builder.setBolt("detect", new FraudDetectionBolt(), 1);
+        builder.setBolt("fraud", new FraudDetectionBolt(), 1).fieldsGrouping("numbers", new Fields("number"));
+        builder.setBolt("pulsar", fraudBolt, 1).globalGrouping("fraud");
 
         Config conf = new Config();
 
-        com.twitter.heron.api.Config.setComponentRam(conf,"numbers", ByteAmount.fromGigabytes(1));
-        com.twitter.heron.api.Config.setComponentRam(conf,"detect", ByteAmount.fromGigabytes(1));
-        com.twitter.heron.api.Config.setContainerCpuRequested(conf, 3);
+        conf.setNumWorkers(2);
+
+        com.twitter.heron.api.Config.setComponentRam(conf,"numbers", ByteAmount.fromMegabytes(256));
+        //com.twitter.heron.api.Config.setComponentRam(conf,"fraud", ByteAmount.fromMegabytes(256));
+        com.twitter.heron.api.Config.setComponentRam(conf,"pulsar", ByteAmount.fromMegabytes(256));
+        com.twitter.heron.api.Config.setContainerCpuRequested(conf, 0.5f);
 
         HelperRunner.runTopology(args, builder.createTopology(), conf);
     }

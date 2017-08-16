@@ -25,9 +25,6 @@ public class WordCountBolt extends BaseBasicBolt {
     //Create logger for this class
     private static final Logger logger = LogManager.getLogger(WordCountBolt.class);
 
-    private static final String PULSAR_BORKER_ROOT_URL = "pulsar://localhost:6650";
-    private static final String TOPIC = "persistent://sample/standalone/ns1/word-count-output";
-
     private static final int EMIT_FREQUENCY = 3;
     //For holding words and counts
     private Map<String, Integer> counts = new HashMap<>();
