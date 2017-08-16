@@ -6,7 +6,6 @@ import org.apache.storm.topology.base.BaseBasicBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
-import org.apache.logging.log4j.Logger;
 
 public class FraudDetectionBolt extends BaseBasicBolt {
     @Override

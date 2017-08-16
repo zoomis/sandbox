@@ -1,6 +1,5 @@
 package tutorial;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.twitter.heron.common.basics.ByteAmount;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageBuilder;
@@ -15,9 +14,6 @@ import pulsar.PulsarBolt;
 import pulsar.PulsarSpout;
 import pulsar.TupleToMessageMapper;
 import tutorial.util.HelperRunner;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class FraudDetectionTopology {
     private static String SERVICE_URL = "pulsar://localhost:6650";
