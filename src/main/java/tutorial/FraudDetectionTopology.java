@@ -80,7 +80,7 @@ public class FraudDetectionTopology {
         conf.setNumWorkers(2);
 
         com.twitter.heron.api.Config.setComponentRam(conf,"numbers", ByteAmount.fromMegabytes(256));
-        //com.twitter.heron.api.Config.setComponentRam(conf,"fraud", ByteAmount.fromMegabytes(256));
+        com.twitter.heron.api.Config.setComponentRam(conf,"fraud", ByteAmount.fromMegabytes(256));
         com.twitter.heron.api.Config.setComponentRam(conf,"pulsar", ByteAmount.fromMegabytes(256));
         com.twitter.heron.api.Config.setContainerCpuRequested(conf, 0.5f);
 
