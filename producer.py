@@ -8,6 +8,7 @@ import sys
 TOPOLOGIES = ['word-count', 'fraud-detection']
 WORD_COUNT_TOPIC = 'persistent://sample/standalone/ns1/sentences'
 FRAUD_DETECTION_TOPIC = 'persistent://sample/standalone/ns1/credit-card-numbers'
+FRAUD_NUMBER_TOPIC = 'persistent://sample/standalone/ns1/fraud-numbers'
 
 # Setup for basic logging
 logging.basicConfig(format='%(asctime)s %(levelname)s : %(message)s', level=logging.DEBUG)
@@ -54,10 +55,18 @@ def run_fraud_detection_producer(client):
     logging.info('Sending random credit card numbers to fraud detection topology...')
 
     while True:
-        sleep(0.05)
+        #sleep(0.05)
         num = random_cc_number()
         logging.info('Sending credit card number: %s', num)
         producer.send(num)
+
+
+def add_fraud_number(client, num):
+    producer = client.create_producer(FRAUD_NUMBER_TOPIC)
+    logging.info('Adding a fraudulent number to the topology...')
+
+    producer.send(num)
+    producer.close()
 
 
 def main(args):
@@ -81,8 +90,12 @@ def main(args):
         run_word_count_producer(client)
 
     elif topology == 'fraud-detection':
-        logging.info("Running the fraud detection producer...")
-        run_fraud_detection_producer(client)
+        if len(args) == 3:
+            fraud_number = args[2]
+            add_fraud_number(client, fraud_number)
+        else:
+            logging.info("Running the fraud detection producer...")
+            run_fraud_detection_producer(client)
 
     client.close()
 

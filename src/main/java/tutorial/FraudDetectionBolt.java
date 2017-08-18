@@ -11,20 +11,29 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class FraudDetectionBolt extends BaseBasicBolt {
+    private Set<String> fraudPatterns;
+
+    public FraudDetectionBolt() {
+        fraudPatterns = new HashSet<>();
+    }
+
+
     @Override
     public void execute(Tuple tuple, BasicOutputCollector collector) {
-        String ccNumber = tuple.getString(0);
+        if (tuple.getSourceComponent().equals("numbers")) {
+            String ccNumber = tuple.getString(tuple.fieldIndex("number"));
 
-        Set<String> patterns = new HashSet<String>() {{
-           add("123");
-           add("567");
-        }};
+            fraudPatterns.forEach(p -> {
+                if (ccNumber.contains(p)) {
+                    collector.emit(new Values(ccNumber));
+                }
+            });
+        }
 
-        patterns.forEach(p -> {
-            if (ccNumber.contains(p)) {
-                collector.emit(new Values(ccNumber));
-            }
-        });
+        if (tuple.getSourceComponent().equals("fraud-numbers")) {
+            String pattern = tuple.getString(tuple.fieldIndex("fraud-number"));
+            fraudPatterns.add(pattern);
+        }
     }
 
     @Override

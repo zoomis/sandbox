@@ -20,6 +20,7 @@ public class FraudDetectionTopology {
     private static String INPUT_TOPIC = "persistent://sample/standalone/ns1/credit-card-numbers";
     private static String OUTPUT_TOPIC = "persistent://sample/standalone/ns1/fraud";
     private static String SUBSCRIPTION = "cc-number-subscription";
+    private static String FRAUD_NUMBER_TOPIC = "persistent://sample/standalone/ns1/fraud-numbers";
 
     public FraudDetectionTopology() {}
 
@@ -54,11 +55,30 @@ public class FraudDetectionTopology {
             }
         };
 
+        MessageToValuesMapper fraudNumberMapper = new MessageToValuesMapper() {
+            @Override
+            public Values toValues(Message msg) {
+                return new Values(new String(msg.getData()));
+            }
+
+            @Override
+            public void declareOutputFields(OutputFieldsDeclarer declarer) {
+                declarer.declare(new Fields("fraud-number"));
+            }
+        };
+
         PulsarSpout ccNumberSpout = new PulsarSpout.Builder()
                 .setServiceUrl(SERVICE_URL)
                 .setTopic(INPUT_TOPIC)
                 .setSubscription(SUBSCRIPTION)
                 .setMessageToValuesMapper(creditCardNumberMapper)
+                .build();
+
+        PulsarSpout fraudNumberSpout = new PulsarSpout.Builder()
+                .setServiceUrl(SERVICE_URL)
+                .setTopic(FRAUD_NUMBER_TOPIC)
+                .setSubscription(SUBSCRIPTION)
+                .setMessageToValuesMapper(fraudNumberMapper)
                 .build();
 
         PulsarBolt fraudBolt = new PulsarBolt.Builder()
@@ -68,7 +88,11 @@ public class FraudDetectionTopology {
                 .build();
 
         builder.setSpout("numbers", ccNumberSpout, 1);
-        builder.setBolt("fraud", new FraudDetectionBolt(), 1).fieldsGrouping("numbers", new Fields("number"));
+        builder.setSpout("fraud-numbers", fraudNumberSpout, 1);
+
+        builder.setBolt("fraud", new FraudDetectionBolt(), 2)
+                .fieldsGrouping("numbers", new Fields("number"))
+                .fieldsGrouping("fraud-numbers", new Fields("fraud-number"));
         builder.setBolt("pulsar", fraudBolt, 1).globalGrouping("fraud");
 
         Config conf = new Config();
