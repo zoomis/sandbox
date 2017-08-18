@@ -7,8 +7,7 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class FraudDetectionBolt extends BaseBasicBolt {
     private Set<String> fraudPatterns;
@@ -31,8 +30,7 @@ public class FraudDetectionBolt extends BaseBasicBolt {
         }
 
         if (tuple.getSourceComponent().equals("fraud-numbers")) {
-            String pattern = tuple.getString(tuple.fieldIndex("fraud-number"));
-            fraudPatterns.add(pattern);
+            Collections.addAll(fraudPatterns, tuple.getString(tuple.fieldIndex("fraud-number")).split(","));
         }
     }
 
