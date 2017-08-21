@@ -71,10 +71,9 @@ def add_fraud_number(client, num):
 
 def main(args):
     if len(args) < 2:
-        logging.fatal("You must supply a topology to target")
-        sys.exit(1)
-
-    topology = args[1]
+        topology = 'word-count'
+    else:
+        topology = args[1]
 
     if not topology in TOPOLOGIES:
         logging.fatal('The topology %s is not amongst the available topologies: %s', topology, ", ".join(TOPOLOGIES))
