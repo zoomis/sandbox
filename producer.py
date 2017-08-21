@@ -55,7 +55,7 @@ def run_fraud_detection_producer(client):
     logging.info('Sending random credit card numbers to fraud detection topology...')
 
     while True:
-        #sleep(0.05)
+        sleep(0.05)
         num = random_cc_number()
         logging.info('Sending credit card number: %s', num)
         producer.send(num)
