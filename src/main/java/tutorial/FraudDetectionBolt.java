@@ -16,21 +16,28 @@ public class FraudDetectionBolt extends BaseBasicBolt {
         fraudPatterns = new HashSet<>();
     }
 
+    private void detectPatterns(String ccNumber, BasicOutputCollector collector) {
+        fraudPatterns.forEach(p -> {
+            if (ccNumber.contains(p)) {
+                collector.emit(new Values(ccNumber));
+            }
+        });
+    }
+
+    private void addPatternsToList(Tuple tuple) {
+        String[] newPatterns = tuple.getString(tuple.fieldIndex("fraud-number")).split(",");
+        Collections.addAll(fraudPatterns, newPatterns);
+    }
 
     @Override
     public void execute(Tuple tuple, BasicOutputCollector collector) {
         if (tuple.getSourceComponent().equals("numbers")) {
             String ccNumber = tuple.getString(tuple.fieldIndex("number"));
-
-            fraudPatterns.forEach(p -> {
-                if (ccNumber.contains(p)) {
-                    collector.emit(new Values(ccNumber));
-                }
-            });
+            detectPatterns(ccNumber, collector);
         }
 
         if (tuple.getSourceComponent().equals("fraud-numbers")) {
-            Collections.addAll(fraudPatterns, tuple.getString(tuple.fieldIndex("fraud-number")).split(","));
+           addPatternsToList(tuple);
         }
     }
 
