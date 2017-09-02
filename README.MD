@@ -9,7 +9,7 @@ This repo houses all of the assets for the [Streamlio sandbox](https://streaml.i
 
 Below is a diagram of the sandbox:
 
-![Streamlio sandbox diagram](images/SandboxDiagram.png)
+![Streamlio sandbox diagram](https://www.lucidchart.com/publicSegments/view/2b6a2556-a0a1-40d6-8831-5eda31a87d60/image.png)
 
 The `producer.py` and `consumer.py` scripts are processes that you'll run outside the Docker container; the gray section in the middle shows everything inside the container.
 
