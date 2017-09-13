@@ -15,14 +15,14 @@ import pulsar.PulsarSpout;
 import pulsar.TupleToMessageMapper;
 import tutorial.util.HelperRunner;
 
-public class FraudDetectionTopology {
+public class PatternDetectionTopology {
     private static String SERVICE_URL = "pulsar://localhost:6650";
     private static String INPUT_TOPIC = "persistent://sample/standalone/ns1/credit-card-numbers";
     private static String OUTPUT_TOPIC = "persistent://sample/standalone/ns1/fraud";
     private static String SUBSCRIPTION = "cc-number-subscription";
     private static String FRAUD_NUMBER_TOPIC = "persistent://sample/standalone/ns1/fraud-numbers";
 
-    public FraudDetectionTopology() {}
+    public PatternDetectionTopology() {}
 
     public static void main(String[] args) throws Exception {
         TopologyBuilder builder = new TopologyBuilder();
