@@ -5,10 +5,10 @@ from time import sleep
 import logging
 import sys
 
-TOPOLOGIES = ['word-count', 'fraud-detection']
+TOPOLOGIES = ['word-count', 'pattern-detection']
 WORD_COUNT_TOPIC = 'persistent://sample/standalone/ns1/sentences'
-FRAUD_DETECTION_TOPIC = 'persistent://sample/standalone/ns1/credit-card-numbers'
-FRAUD_NUMBER_TOPIC = 'persistent://sample/standalone/ns1/fraud-numbers'
+PATTERN_DETECTION_TOPIC = 'persistent://sample/standalone/ns1/random-numbers'
+ADD_PATTERN_TOPIC = 'persistent://sample/standalone/ns1/add-pattern'
 
 # Setup for basic logging
 logging.basicConfig(format='%(asctime)s %(levelname)s : %(message)s', level=logging.DEBUG)
@@ -46,24 +46,24 @@ def run_word_count_producer(client):
 
 
 
-def run_fraud_detection_producer(client):
-    producer = client.create_producer(FRAUD_DETECTION_TOPIC)
+def run_pattern_detection_producer(client):
+    producer = client.create_producer(PATTERN_DETECTION_TOPIC)
 
     def random_cc_number():
         return ''.join(["%s" % randint(0, 9) for num in range(0, 16)])
 
-    logging.info('Sending random credit card numbers to fraud detection topology...')
+    logging.info('Sending random 16-digit numbers to pattern detection topology...')
 
     while True:
         sleep(0.05)
         num = random_cc_number()
-        logging.info('Sending credit card number: %s', num)
+        logging.info('Sending random number: %s', num)
         producer.send(num)
 
 
-def add_fraud_number(client, num):
-    producer = client.create_producer(FRAUD_NUMBER_TOPIC)
-    logging.info('Adding a fraudulent number to the topology...')
+def add_pattern(client, num):
+    producer = client.create_producer(ADD_PATTERN_TOPIC)
+    logging.info('Adding a pattern to the pattern detection topology...')
 
     producer.send(num)
     producer.close()
@@ -88,13 +88,13 @@ def main(args):
         logging.info("Running the word count producer...")
         run_word_count_producer(client)
 
-    elif topology == 'fraud-detection':
+    elif topology == 'pattern-detection':
         if len(args) == 3:
-            fraud_number = args[2]
-            add_fraud_number(client, fraud_number)
+            number = args[2]
+            add_pattern(client, number)
         else:
-            logging.info("Running the fraud detection producer...")
-            run_fraud_detection_producer(client)
+            logging.info("Running the pattern detection producer...")
+            run_pattern_detection_producer(client)
 
     client.close()
 

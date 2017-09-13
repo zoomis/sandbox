@@ -2,10 +2,10 @@ import pulsar
 import logging
 import sys
 
-TOPOLOGIES = ['word-count', 'fraud-detection']
+TOPOLOGIES = ['word-count', 'pattern-detection']
 WORD_COUNT_TOPIC = 'persistent://sample/standalone/ns1/wordcount'
-FRAUD_DETECTION_TOPIC = 'persistent://sample/standalone/ns1/fraud'
-SUBSCRIPTION = 'my-sub'
+PATTERN_DETECTION_TOPIC = 'persistent://sample/standalone/ns1/detected-patterns'
+SUBSCRIPTION = 'pattern-detection-subscription-1'
 TIMEOUT = 10000
 
 # Setup up basic logging
@@ -44,9 +44,9 @@ def main(args):
         logging.info("Running the word count producer...")
         run_consumer(client, WORD_COUNT_TOPIC)
 
-    elif topology == 'fraud-detection':
-        logging.info("Running the fraud detection producer...")
-        run_consumer(client, FRAUD_DETECTION_TOPIC)
+    elif topology == 'pattern-detection':
+        logging.info("Running the pattern detection producer...")
+        run_consumer(client, PATTERN_DETECTION_TOPIC)
 
     client.close()
 

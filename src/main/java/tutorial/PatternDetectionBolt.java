@@ -9,40 +9,40 @@ import org.apache.storm.tuple.Values;
 
 import java.util.*;
 
-public class FraudDetectionBolt extends BaseBasicBolt {
-    private Set<String> fraudPatterns;
+public class PatternDetectionBolt extends BaseBasicBolt {
+    private Set<String> patterns;
 
-    public FraudDetectionBolt() {
-        fraudPatterns = new HashSet<>();
+    public PatternDetectionBolt() {
+        patterns = new HashSet<>();
     }
 
-    private void detectPatterns(String ccNumber, BasicOutputCollector collector) {
-        fraudPatterns.forEach(p -> {
-            if (ccNumber.contains(p)) {
-                collector.emit(new Values(ccNumber));
+    private void detectPatterns(String number, BasicOutputCollector collector) {
+        patterns.forEach(p -> {
+            if (number.contains(p)) {
+                collector.emit(new Values(p, number));
             }
         });
     }
 
     private void addPatternsToList(Tuple tuple) {
-        String[] newPatterns = tuple.getString(tuple.fieldIndex("fraud-number")).split(",");
-        Collections.addAll(fraudPatterns, newPatterns);
+        String[] newPatterns = tuple.getString(tuple.fieldIndex("pattern")).split(",");
+        Collections.addAll(patterns, newPatterns);
     }
 
     @Override
     public void execute(Tuple tuple, BasicOutputCollector collector) {
-        if (tuple.getSourceComponent().equals("numbers")) {
+        if (tuple.getSourceComponent().equals("incoming-numbers")) {
             String ccNumber = tuple.getString(tuple.fieldIndex("number"));
             detectPatterns(ccNumber, collector);
         }
 
-        if (tuple.getSourceComponent().equals("fraud-numbers")) {
+        if (tuple.getSourceComponent().equals("add-pattern")) {
            addPatternsToList(tuple);
         }
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("fraud"));
+        declarer.declare(new Fields("pattern", "original-number"));
     }
 }

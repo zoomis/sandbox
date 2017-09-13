@@ -13,37 +13,41 @@ import pulsar.MessageToValuesMapper;
 import pulsar.PulsarBolt;
 import pulsar.PulsarSpout;
 import pulsar.TupleToMessageMapper;
+import tutorial.util.Constants;
 import tutorial.util.HelperRunner;
 
 public class PatternDetectionTopology {
-    private static String SERVICE_URL = "pulsar://localhost:6650";
-    private static String INPUT_TOPIC = "persistent://sample/standalone/ns1/credit-card-numbers";
-    private static String OUTPUT_TOPIC = "persistent://sample/standalone/ns1/fraud";
-    private static String SUBSCRIPTION = "cc-number-subscription";
-    private static String FRAUD_NUMBER_TOPIC = "persistent://sample/standalone/ns1/fraud-numbers";
+    private static String INPUT_TOPIC = "persistent://sample/standalone/ns1/random-numbers";
+    private static String OUTPUT_TOPIC = "persistent://sample/standalone/ns1/detected-patterns";
+    private static String SUBSCRIPTION = "pattern-detection-subscription";
+    private static String FRAUD_NUMBER_TOPIC = "persistent://sample/standalone/ns1/add-pattern";
 
     public PatternDetectionTopology() {}
 
     public static void main(String[] args) throws Exception {
         TopologyBuilder builder = new TopologyBuilder();
 
-        TupleToMessageMapper fraudulentNumberMapper = new TupleToMessageMapper() {
+        TupleToMessageMapper detectedPatternMapper = new TupleToMessageMapper() {
             @Override
             public Message toMessage(Tuple tuple) {
-                String msg = String.format("Fraudulent number: %s", tuple.getString(0));
+                String pattern = tuple.getString(tuple.fieldIndex("pattern"));
+                String number = tuple.getString(tuple.fieldIndex("original-number"));
 
-                return MessageBuilder.create().setContent(
-                        msg.getBytes())
+                String msg = String.format("Detected pattern %s in number %s", pattern, number);
+
+                byte[] msgPayload = msg.getBytes();
+
+                return MessageBuilder.create().setContent(msgPayload)
                         .build();
             }
 
             @Override
             public void declareOutputFields(OutputFieldsDeclarer declarer) {
-                declarer.declare(new Fields("fraud"));
+                declarer.declare(new Fields("detected-pattern"));
             }
         };
 
-        MessageToValuesMapper creditCardNumberMapper = new MessageToValuesMapper() {
+        MessageToValuesMapper incomingNumberMapper = new MessageToValuesMapper() {
             @Override
             public Values toValues(Message msg) {
                 return new Values(new String(msg.getData()));
@@ -55,7 +59,7 @@ public class PatternDetectionTopology {
             }
         };
 
-        MessageToValuesMapper fraudNumberMapper = new MessageToValuesMapper() {
+        MessageToValuesMapper addPatternMapper = new MessageToValuesMapper() {
             @Override
             public Values toValues(Message msg) {
                 return new Values(new String(msg.getData()));
@@ -63,45 +67,47 @@ public class PatternDetectionTopology {
 
             @Override
             public void declareOutputFields(OutputFieldsDeclarer declarer) {
-                declarer.declare(new Fields("fraud-number"));
+                declarer.declare(new Fields("pattern"));
             }
         };
 
-        PulsarSpout ccNumberSpout = new PulsarSpout.Builder()
-                .setServiceUrl(SERVICE_URL)
+        PulsarSpout incomingNumberSpout = new PulsarSpout.Builder()
+                .setServiceUrl(Constants.PULSAR_SERVICE_URL)
                 .setTopic(INPUT_TOPIC)
                 .setSubscription(SUBSCRIPTION)
-                .setMessageToValuesMapper(creditCardNumberMapper)
+                .setMessageToValuesMapper(incomingNumberMapper)
                 .build();
 
-        PulsarSpout fraudNumberSpout = new PulsarSpout.Builder()
-                .setServiceUrl(SERVICE_URL)
+        PulsarSpout addPatternSpout = new PulsarSpout.Builder()
+                .setServiceUrl(Constants.PULSAR_SERVICE_URL)
                 .setTopic(FRAUD_NUMBER_TOPIC)
                 .setSubscription(SUBSCRIPTION)
-                .setMessageToValuesMapper(fraudNumberMapper)
+                .setMessageToValuesMapper(addPatternMapper)
                 .build();
 
-        PulsarBolt fraudBolt = new PulsarBolt.Builder()
-                .setServiceUrl(SERVICE_URL)
+        PulsarBolt detectedPatternOutputBolt = new PulsarBolt.Builder()
+                .setServiceUrl(Constants.PULSAR_SERVICE_URL)
                 .setTopic(OUTPUT_TOPIC)
-                .setTupleToMessageMapper(fraudulentNumberMapper)
+                .setTupleToMessageMapper(detectedPatternMapper)
                 .build();
 
-        builder.setSpout("numbers", ccNumberSpout, 1);
-        builder.setSpout("fraud-numbers", fraudNumberSpout, 1);
+        builder.setSpout("incoming-numbers", incomingNumberSpout, 1);
+        builder.setSpout("add-pattern", addPatternSpout, 1);
 
-        builder.setBolt("fraud", new FraudDetectionBolt(), 2)
-                .fieldsGrouping("numbers", new Fields("number"))
-                .fieldsGrouping("fraud-numbers", new Fields("fraud-number"));
-        builder.setBolt("pulsar", fraudBolt, 1).globalGrouping("fraud");
+        builder.setBolt("pattern-detection", new PatternDetectionBolt(), 2)
+                .fieldsGrouping("incoming-numbers", new Fields("number"))
+                .fieldsGrouping("add-pattern", new Fields("pattern"));
+
+        builder.setBolt("pulsar-output", detectedPatternOutputBolt, 1)
+                .globalGrouping("pattern-detection");
 
         Config conf = new Config();
 
         conf.setNumWorkers(2);
 
-        com.twitter.heron.api.Config.setComponentRam(conf,"numbers", ByteAmount.fromMegabytes(256));
-        com.twitter.heron.api.Config.setComponentRam(conf,"fraud", ByteAmount.fromMegabytes(256));
-        com.twitter.heron.api.Config.setComponentRam(conf,"pulsar", ByteAmount.fromMegabytes(256));
+        com.twitter.heron.api.Config.setComponentRam(conf,"incoming-numbers", ByteAmount.fromMegabytes(256));
+        com.twitter.heron.api.Config.setComponentRam(conf,"pattern-detection", ByteAmount.fromMegabytes(256));
+        com.twitter.heron.api.Config.setComponentRam(conf,"pulsar-output", ByteAmount.fromMegabytes(256));
         com.twitter.heron.api.Config.setContainerCpuRequested(conf, 0.5f);
 
         HelperRunner.runTopology(args, builder.createTopology(), conf);

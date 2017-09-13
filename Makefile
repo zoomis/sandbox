@@ -1,5 +1,5 @@
 clean:
-	rm -rf target
+	rm -rf target docker/*.jar
 
 build-image: clean
 	mvn package
