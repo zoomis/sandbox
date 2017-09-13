@@ -77,7 +77,7 @@ COPY streamlio.conf /etc/supervisor/conf.d/
 COPY apply-config-from-env.py /pulsar/bin
 
 # Copy topology jars
-COPY heron-starter-0.0.1-SNAPSHOT-jar-with-dependencies.jar /components
+COPY heron-starter-*-jar-with-dependencies.jar /components/
 
 # Settings for lower memory consumption
 ENV PULSAR_MEM '" -Xmx512M -XX:MaxDirectMemorySize=512M"'
