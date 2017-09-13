@@ -22,8 +22,8 @@ public class WordCountTopology {
 
     private static String SERVICE_URL = "pulsar://localhost:6650";
     private static String INPUT_TOPIC = "persistent://sample/standalone/ns1/sentences";
-    private static String OUPTUT_TOPIC = "persistent://sample/standalone/ns1/wordcount";
-    private static String SUBSCRIPTION = "heron-spout";
+    private static String OUTPUT_TOPIC = "persistent://sample/standalone/ns1/wordcount";
+    private static String SUBSCRIPTION = "subscriber-1";
 
     private WordCountTopology() { }
 
@@ -77,7 +77,7 @@ public class WordCountTopology {
 
         PulsarBolt messageBolt = new PulsarBolt.Builder()
                 .setServiceUrl(SERVICE_URL)
-                .setTopic(OUPTUT_TOPIC)
+                .setTopic(OUTPUT_TOPIC)
                 .setTupleToMessageMapper(wordCountMapper)
                 .build();
 

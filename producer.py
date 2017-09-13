@@ -1,7 +1,18 @@
 import pulsar
 import random
+from random import randint
 from time import sleep
 import logging
+import sys
+
+TOPOLOGIES = ['word-count', 'fraud-detection']
+WORD_COUNT_TOPIC = 'persistent://sample/standalone/ns1/sentences'
+FRAUD_DETECTION_TOPIC = 'persistent://sample/standalone/ns1/credit-card-numbers'
+FRAUD_NUMBER_TOPIC = 'persistent://sample/standalone/ns1/fraud-numbers'
+
+# Setup for basic logging
+logging.basicConfig(format='%(asctime)s %(levelname)s : %(message)s', level=logging.DEBUG)
+
 
 # This iterates continuously through a list sequence in random order
 def random_cycle(ls):
@@ -11,33 +22,82 @@ def random_cycle(ls):
         for e in local_ls:
             yield e
 
-# Setup up basic logging
-logging.basicConfig(format='%(asctime)s %(levelname)s : %(message)s', level=logging.DEBUG)
 
-logging.info('Connecting to Pulsar...')
+def run_word_count_producer(client):
+    # Build a producer instance on a specific topic
+    producer = client.create_producer(WORD_COUNT_TOPIC)
+    logging.info('Connected to Pulsar')
 
-# Create a pulsar client instance with reference to the broker
-client = pulsar.Client('pulsar://localhost:6650')
+     # Collection of sentences to serve as random input sequence
+    sentences = random_cycle([
+                "the cow jumped over the moon",
+                "an apple a day keeps the doctor away",
+                "four score and seven years ago",
+                "snow white and the seven dwarfs",
+                "i am at two with nature"
+            ])
 
-# Build a producer instance on a specific topic
-producer = client.create_producer('persistent://sample/standalone/ns1/sentences')
+    logging.info('Sending sentences to the word count topology...')
 
-logging.info('Connected to Pulsar')
+    for sentence in sentences:
+        sleep(0.05)  # Throttle messages with a 50 ms delay
+        logging.info('Sending sentence: %s ', sentence)
+        producer.send(sentence) # Publish randomly selected sentence to Pulsar
 
-# Collection of sentences to serve as random input sequence
-sentences = random_cycle([
-            "the cow jumped over the moon",
-            "an apple a day keeps the doctor away",
-            "four score and seven years ago",
-            "snow white and the seven dwarfs",
-            "i am at two with nature"
-        ])
 
-logging.info('Sending Messages ...')
 
-for sentence in sentences:
-    sleep(0.05)  # throttle messages with 50 ms delay
-    logging.info('Sending message - %s ', sentence)
-    producer.send(sentence)  # publish to pulsar
+def run_fraud_detection_producer(client):
+    producer = client.create_producer(FRAUD_DETECTION_TOPIC)
 
-client.close()
+    def random_cc_number():
+        return ''.join(["%s" % randint(0, 9) for num in range(0, 16)])
+
+    logging.info('Sending random credit card numbers to fraud detection topology...')
+
+    while True:
+        sleep(0.05)
+        num = random_cc_number()
+        logging.info('Sending credit card number: %s', num)
+        producer.send(num)
+
+
+def add_fraud_number(client, num):
+    producer = client.create_producer(FRAUD_NUMBER_TOPIC)
+    logging.info('Adding a fraudulent number to the topology...')
+
+    producer.send(num)
+    producer.close()
+
+
+def main(args):
+    if len(args) < 2:
+        topology = 'word-count'
+    else:
+        topology = args[1]
+
+    if not topology in TOPOLOGIES:
+        logging.fatal('The topology %s is not amongst the available topologies: %s', topology, ", ".join(TOPOLOGIES))
+        sys.exit(1)
+
+    logging.info('Connecting to Pulsar...')
+
+    # Create a pulsar client instance with reference to the broker
+    client = pulsar.Client('pulsar://localhost:6650')
+
+    if topology == 'word-count':
+        logging.info("Running the word count producer...")
+        run_word_count_producer(client)
+
+    elif topology == 'fraud-detection':
+        if len(args) == 3:
+            fraud_number = args[2]
+            add_fraud_number(client, fraud_number)
+        else:
+            logging.info("Running the fraud detection producer...")
+            run_fraud_detection_producer(client)
+
+    client.close()
+
+
+if __name__ == '__main__':
+    main(sys.argv)
