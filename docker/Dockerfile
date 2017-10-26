@@ -30,7 +30,7 @@ RUN apt-get update && \
 WORKDIR /components
 
 # Pulsar
-RUN wget http://mirrors.ocf.berkeley.edu/apache/incubator/pulsar/pulsar-1.19.0-incubating/apache-pulsar-1.19.0-incubating-bin.tar.gz && \
+RUN wget http://archive.apache.org/dist/incubator/pulsar/pulsar-1.19.0-incubating/apache-pulsar-1.19.0-incubating-bin.tar.gz && \
     tar xvzf apache-pulsar-1.19.0-incubating-bin.tar.gz && \
     mv apache-pulsar-1.19.0-incubating /pulsar && \
     rm apache-pulsar-1.19.0-incubating-bin.tar.gz
@@ -77,7 +77,7 @@ COPY streamlio.conf /etc/supervisor/conf.d/
 COPY apply-config-from-env.py /pulsar/bin
 
 # Copy topology jars
-COPY heron-starter-*-jar-with-dependencies.jar /components/
+COPY heron-starter-latest-jar-with-dependencies.jar /components/
 
 # Settings for lower memory consumption
 ENV PULSAR_MEM '" -Xmx512M -XX:MaxDirectMemorySize=512M"'
