@@ -30,7 +30,7 @@ RUN apt-get update && \
 WORKDIR /components
 
 # Pulsar
-RUN wget http://archive.apache.org/dist/incubator/pulsar/pulsar-1.20.0-incubating/apache-pulsar-1.19.0-incubating-bin.tar.gz && \
+RUN wget http://archive.apache.org/dist/incubator/pulsar/pulsar-1.19.0-incubating/apache-pulsar-1.19.0-incubating-bin.tar.gz && \
     tar xvzf apache-pulsar-1.19.0-incubating-bin.tar.gz && \
     mv apache-pulsar-1.19.0-incubating /pulsar && \
     rm apache-pulsar-1.19.0-incubating-bin.tar.gz
