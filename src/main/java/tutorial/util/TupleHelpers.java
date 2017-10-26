@@ -1,6 +1,5 @@
 package tutorial.util;
 
-
 import com.twitter.heron.api.tuple.Tuple;
 
 public final class TupleHelpers {
