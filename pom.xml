@@ -100,7 +100,6 @@
           <executable>java</executable>
           <includeProjectDependencies>true</includeProjectDependencies>
           <includePluginDependencies>false</includePluginDependencies>
-          <mainClass>${heron.topology}</mainClass>
           <classpathScope>compile</classpathScope>
         </configuration>
       </plugin>
