@@ -1,22 +1,19 @@
 package tutorial;
 
+import com.twitter.heron.api.Config;
+import com.twitter.heron.api.bolt.BaseBasicBolt;
+import com.twitter.heron.api.bolt.BasicOutputCollector;
+import com.twitter.heron.api.topology.OutputFieldsDeclarer;
+import com.twitter.heron.api.tuple.Fields;
+import com.twitter.heron.api.tuple.Tuple;
+import com.twitter.heron.api.tuple.Values;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.pulsar.client.api.PulsarClientException;
+import tutorial.util.TupleHelpers;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-import org.apache.pulsar.client.api.Producer;
-import org.apache.pulsar.client.api.PulsarClient;
-import org.apache.pulsar.client.api.PulsarClientException;
-import org.apache.storm.Config;
-import org.apache.storm.task.TopologyContext;
-import org.apache.storm.topology.BasicOutputCollector;
-import org.apache.storm.topology.OutputFieldsDeclarer;
-import org.apache.storm.topology.base.BaseBasicBolt;
-import org.apache.storm.tuple.Fields;
-import org.apache.storm.tuple.Tuple;
-import org.apache.storm.tuple.Values;
-import tutorial.util.TupleHelpers;
 
 /**
  * This Bolt emits word count pairs in periodic intervals
@@ -45,7 +42,7 @@ public class WordCountBolt extends BaseBasicBolt {
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Config conf = new Config();
-        conf.put(Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS, emitFrequency);
+        conf.put(Config.TOPOLOGY_TICK_TUPLE_FREQ_MS, emitFrequency);
         return conf;
     }
 

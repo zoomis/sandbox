@@ -1,19 +1,19 @@
 package tutorial;
 
+import com.twitter.heron.api.HeronSubmitter;
+import com.twitter.heron.api.topology.OutputFieldsDeclarer;
+import com.twitter.heron.api.topology.TopologyBuilder;
+import com.twitter.heron.api.tuple.Fields;
+import com.twitter.heron.api.tuple.Tuple;
+import com.twitter.heron.api.tuple.Values;
 import com.twitter.heron.common.basics.ByteAmount;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageBuilder;
-import org.apache.storm.Config;
-import org.apache.storm.topology.OutputFieldsDeclarer;
-import org.apache.storm.topology.TopologyBuilder;
-import org.apache.storm.tuple.Fields;
-import org.apache.storm.tuple.Tuple;
-import org.apache.storm.tuple.Values;
+import com.twitter.heron.api.Config;
 import pulsar.MessageToValuesMapper;
 import pulsar.PulsarBolt;
 import pulsar.PulsarSpout;
 import pulsar.TupleToMessageMapper;
-import tutorial.util.HelperRunner;
 
 /**
  * This is driver as well the topology graph generator
@@ -88,18 +88,17 @@ public class WordCountTopology {
 
         Config conf = new Config();
 
-        conf.setNumWorkers(4);
+        conf.setNumStmgrs(4);
 
         // Resource Configs
-        com.twitter.heron.api.Config.setComponentRam(conf, "sentence", ByteAmount.fromMegabytes(256));
-        com.twitter.heron.api.Config.setComponentRam(conf, "split", ByteAmount.fromMegabytes(256));
-        com.twitter.heron.api.Config.setComponentRam(conf, "count", ByteAmount.fromMegabytes(256));
-        com.twitter.heron.api.Config.setComponentRam(conf, "pulsar", ByteAmount.fromMegabytes(256));
-        com.twitter.heron.api.Config.setContainerCpuRequested(conf, 0.5f);
+        conf.setComponentRam("sentence", ByteAmount.fromMegabytes(256));
+        conf.setComponentRam( "split", ByteAmount.fromMegabytes(256));
+        conf.setComponentRam( "count", ByteAmount.fromMegabytes(256));
+        conf.setComponentRam( "pulsar", ByteAmount.fromMegabytes(256));
+        conf.setContainerCpuRequested(0.5f);
 
         //submit the topology
-        HelperRunner.runTopology(args, builder.createTopology(), conf);
-
+        HeronSubmitter.submitTopology(args[0], conf, builder.createTopology());
     }
 
 }

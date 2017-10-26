@@ -1,9 +1,10 @@
 package pulsar;
 
-import java.io.Serializable;
+import com.twitter.heron.api.topology.OutputFieldsDeclarer;
+import com.twitter.heron.api.tuple.Tuple;
 import org.apache.pulsar.client.api.Message;
-import org.apache.storm.topology.OutputFieldsDeclarer;
-import org.apache.storm.tuple.Tuple;
+
+import java.io.Serializable;
 
 public interface TupleToMessageMapper extends Serializable {
 

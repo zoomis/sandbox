@@ -14,11 +14,11 @@
 
 package pulsar;
 
-import java.io.Serializable;
-
+import com.twitter.heron.api.topology.OutputFieldsDeclarer;
+import com.twitter.heron.api.tuple.Values;
 import org.apache.pulsar.client.api.Message;
-import org.apache.storm.topology.OutputFieldsDeclarer;
-import org.apache.storm.tuple.Values;
+
+import java.io.Serializable;
 
 public interface MessageToValuesMapper extends Serializable {
 

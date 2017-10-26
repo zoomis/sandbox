@@ -1,7 +1,7 @@
 package tutorial.util;
 
 
-import org.apache.storm.tuple.Tuple;
+import com.twitter.heron.api.tuple.Tuple;
 
 public final class TupleHelpers {
 
