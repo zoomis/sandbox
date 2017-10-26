@@ -5,7 +5,7 @@ from time import sleep
 import logging
 import sys
 
-WORD_COUNT_TOPIC = 'persistent://sample/standalone/ns1/sentences'
+SENTENCES_TOPIC = 'persistent://sample/standalone/ns1/sentences'
 
 # Setup for basic logging
 logging.basicConfig(format='%(asctime)s %(levelname)s : %(message)s', level=logging.DEBUG)
@@ -25,7 +25,7 @@ def main(args):
     client = pulsar.Client('pulsar://localhost:6650')
 
     # Build a producer instance on a specific topic
-    producer = client.create_producer(WORD_COUNT_TOPIC)
+    producer = client.create_producer(SENTENCES_TOPIC)
     logging.info('Connected to Pulsar')
 
      # Collection of sentences to serve as random input sequence
